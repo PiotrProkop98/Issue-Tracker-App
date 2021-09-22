@@ -20,6 +20,6 @@ mix.browserSync({
 
 mix.ts('resources/js/app.tsx', 'public/js')
     .react()
-    .postCss('resources/css/app.css', 'public/css', [
+    .sass('resources/scss/app.scss', 'public/css', [
         //
     ]);
