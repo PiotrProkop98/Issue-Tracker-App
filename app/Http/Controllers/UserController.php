@@ -47,9 +47,9 @@ class UserController extends Controller
     public function logout(Request $request) {
         $request->user()->currentAccessToken()->delete();
 
-        return [
+        return response()->json([
             'success' => true
-        ];
+        ], 200);
     }
 
     public function register(Request $request) {
@@ -82,6 +82,6 @@ class UserController extends Controller
             'email' => $request->all()['email'],
             'name' => $request->all()['name'],
             'token' => $token->plainTextToken
-        ], 200);
+        ], 201);
     }
 }

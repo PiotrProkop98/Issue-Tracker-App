@@ -15,14 +15,14 @@ class UserTest extends TestCase
 
     public function test_register_success()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1@gmail.com',
             'name' => 'Piotr Prokop',
             'password' => '123456',
             'password_confirmation' => '123456'
         ];
 
-        $response = $this->json('POST', '/api/register', $jsonObject);
+        $response = $this->json('POST', '/api/register', $json_object);
 
         $expected_json_data = [
             'success' => true,
@@ -34,7 +34,7 @@ class UserTest extends TestCase
         $password_match = Hash::check('123456', $user->password);
 
         $response
-            ->assertStatus(200)
+            ->assertStatus(201)
             ->assertJsonFragment($expected_json_data);
         
         $this->assertNotEmpty($user);
@@ -45,14 +45,14 @@ class UserTest extends TestCase
 
     public function test_register_invalid_email()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1gmail.com',
             'name' => 'Piotr Prokop',
             'password' => '123456',
             'password_confirmation' => '123456'
         ];
 
-        $response = $this->json('POST', '/api/register', $jsonObject);
+        $response = $this->json('POST', '/api/register', $json_object);
 
         $expected_json_data = [
             'success' => false,
@@ -70,7 +70,7 @@ class UserTest extends TestCase
 
     public function test_register_email_not_unique()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1@gmail.com',
             'name' => 'Piotr Prokop',
             'password' => '123456',
@@ -78,12 +78,12 @@ class UserTest extends TestCase
         ];
 
         User::create([
-            'email' => $jsonObject['email'],
+            'email' => $json_object['email'],
             'name' => 'Diffrent name',
             'password' => Hash::make('123456')
         ]);
 
-        $response = $this->json('POST', '/api/register', $jsonObject);
+        $response = $this->json('POST', '/api/register', $json_object);
 
         $expected_json_data = [
             'success' => false,
@@ -101,14 +101,14 @@ class UserTest extends TestCase
 
     public function test_register_passwords_arent_the_same()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1@gmail.com',
             'name' => 'Piotr Prokop',
             'password' => '123456',
             'password_confirmation' => 'diffrentPassword'
         ];
 
-        $response = $this->json('POST', '/api/register', $jsonObject);
+        $response = $this->json('POST', '/api/register', $json_object);
 
         $expected_json_data = [
             'success' => false,
@@ -126,22 +126,22 @@ class UserTest extends TestCase
 
     public function test_login_success()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1@gmail.com',
             'password' => '123456'
         ];
 
         User::create([
-            'email' => $jsonObject['email'],
+            'email' => 'piotr1@gmail.com',
             'name' => 'Piotr Prokop',
             'password' => Hash::make('123456')
         ]);
 
-        $response = $this->json('POST', '/api/login', $jsonObject);
+        $response = $this->json('POST', '/api/login', $json_object);
 
         $expected_json_data = [
             'success' => true,
-            'email' => $jsonObject['email'],
+            'email' => 'piotr1@gmail.com',
             'name' => 'Piotr Prokop'
         ];
 
@@ -152,12 +152,12 @@ class UserTest extends TestCase
 
     public function test_login_invalid_email()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1gmail.com',
             'password' => '123456'
         ];
 
-        $response = $this->json('POST', '/api/login', $jsonObject);
+        $response = $this->json('POST', '/api/login', $json_object);
 
         $expected_json_data = [
             'success' => false,
@@ -171,12 +171,12 @@ class UserTest extends TestCase
 
     public function test_login_user_does_not_exists()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1@gmail.com',
             'password' => '123456'
         ];
 
-        $response = $this->json('POST', '/api/login', $jsonObject);
+        $response = $this->json('POST', '/api/login', $json_object);
 
         $expected_json_data = [
             'success' => false,
@@ -190,12 +190,12 @@ class UserTest extends TestCase
 
     public function test_login_password_too_short()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1@gmail.com',
             'password' => '12'
         ];
 
-        $response = $this->json('POST', '/api/login', $jsonObject);
+        $response = $this->json('POST', '/api/login', $json_object);
 
         $expected_json_data = [
             'success' => false,
@@ -209,7 +209,7 @@ class UserTest extends TestCase
 
     public function test_login_incorrect_password()
     {
-        $jsonObject = [
+        $json_object = [
             'email' => 'piotr1@gmail.com',
             'password' => '123456'
         ];
@@ -220,7 +220,7 @@ class UserTest extends TestCase
             'password' => Hash::make('654321')
         ]);
 
-        $response = $this->json('POST', '/api/login', $jsonObject);
+        $response = $this->json('POST', '/api/login', $json_object);
 
         $expected_json_data = [
             'success' => false,
