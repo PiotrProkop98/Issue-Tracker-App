@@ -231,4 +231,28 @@ class UserTest extends TestCase
             ->assertStatus(400)
             ->assertJson($expected_json_data);
     }
+
+    public function test_logout()
+    {
+        $json_object = [
+            'email' => 'piotr1@gmail.com',
+            'password' => '123456'
+        ];
+
+        $expected_json_data = [
+            'success' => true
+        ];
+
+        User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop',
+            'password' => Hash::make('123456')
+        ]);
+
+        $response = $this->json('POST', '/api/login', $json_object);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
 }
