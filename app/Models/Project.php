@@ -14,8 +14,8 @@ class Project extends Model
         'is_private'
     ];
 
-    public function projects()
+    public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'project_users');
     }
 }
