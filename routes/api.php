@@ -15,6 +15,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 */
 
+
 Route::get('/users', function (Request $request) {
     $users = User::all();
     return response()->json($users, 200);
@@ -25,8 +26,11 @@ Route::get('/users-projects', function () {
     return response()->json($users_projects, 200);
 });
 
+
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/register', [UserController::class, 'register']);
 
 Route::get('/projects', [ProjectController::class, 'index']);
+Route::get('/projects/all', [ProjectController::class, 'all'])->middleware('auth:sanctum');
+Route::get('/projects/projects-user-belongs-to-only', [ProjectController::class, 'projects_user_belongs_to_only'])->middleware('auth:sanctum');
