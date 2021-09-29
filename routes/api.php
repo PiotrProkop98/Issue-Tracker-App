@@ -32,5 +32,4 @@ Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:sanc
 Route::post('/register', [UserController::class, 'register']);
 
 Route::get('/projects', [ProjectController::class, 'index']);
-Route::get('/projects/all', [ProjectController::class, 'all'])->middleware('auth:sanctum');
 Route::get('/projects/projects-user-belongs-to-only', [ProjectController::class, 'projects_user_belongs_to_only'])->middleware('auth:sanctum');

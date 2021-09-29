@@ -19,12 +19,6 @@ class ProjectController extends Controller
         return response()->json($projects, 200);
     }
 
-    public function all(Request $request)
-    {
-        $projects = Project::orderBy('created_at')->paginate(10);
-        return response()->json($projects, 200);
-    }
-
     public function projects_user_belongs_to_only(Request $request)
     {
         $projects = $request
