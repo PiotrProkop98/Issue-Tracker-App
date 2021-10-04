@@ -30,14 +30,14 @@ const Navbar = () => {
     const drawer = (
         <List>
             {links.map((text, i) => (
-                <ListItem button key={text}>
-                    <ListItemIcon>
-                        <DoubleArrowIcon />
-                    </ListItemIcon>
-                    <Link to={urls[i]} onClick={handleDrawerToggle} className="link">
+                <Link to={urls[i]} onClick={handleDrawerToggle} className="link">
+                    <ListItem button key={text}>
+                            <ListItemIcon>
+                                <DoubleArrowIcon />
+                            </ListItemIcon>
                         <ListItemText primary={text} />
-                    </Link>
-                </ListItem>
+                    </ListItem>
+                </Link>
             ))}
         </List>
     );
