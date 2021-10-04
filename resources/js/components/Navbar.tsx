@@ -18,20 +18,22 @@ const Navbar = () => {
     const links = [
         'Public projects',
         'Your projects',
-        'Log in'
+        'Log in',
+        'Sing in'
     ];
     
     const urls = [
         '/',
         '/your-projects',
-        '/login'
+        '/login',
+        '/register'
     ];
 
     const drawer = (
         <List>
             {links.map((text, i) => (
-                <Link to={urls[i]} onClick={handleDrawerToggle} className="link">
-                    <ListItem button key={text}>
+                <Link to={urls[i]} onClick={handleDrawerToggle} className="link" key={i}>
+                    <ListItem button>
                             <ListItemIcon>
                                 <DoubleArrowIcon />
                             </ListItemIcon>
@@ -45,8 +47,8 @@ const Navbar = () => {
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="fixed" sx={{
-                width: { sm: `calc(100% - ${drawerWidth}px)` },
-                ml: { sm: `${drawerWidth}px` }
+                width: { md: `calc(100% - ${drawerWidth}px)` },
+                ml: { md: `${drawerWidth}px` }
             }}>
                 <Toolbar>
                     <IconButton
@@ -55,21 +57,18 @@ const Navbar = () => {
                         color="inherit"
                         aria-label="menu"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, cursor: 'pointer' }}
+                        sx={{ mr: 2, cursor: 'pointer', display: { xs: 'block', md: 'none' }}}
                     >
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         <Link to="/" className="link">Bug tracker app</Link>
                     </Typography>
-                    <Link to="/login"  className="link">
-                        <Button color="inherit">Login</Button>
-                    </Link>
                 </Toolbar>
             </AppBar>
             <Box
                 component="nav"
-                sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+                sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
                 aria-label="mailbox folders"
             >
                 <Drawer
@@ -80,7 +79,7 @@ const Navbar = () => {
                         keepMounted: true
                     }}
                     sx={{
-                        display: { xs: 'block', sm: 'none' },
+                        display: { xs: 'block', md: 'none' },
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
                     }}
                 >
@@ -89,7 +88,7 @@ const Navbar = () => {
                 <Drawer
                     variant="permanent"
                     sx={{
-                        display: { xs: 'none', sm: 'block' },
+                        display: { xs: 'none', md: 'block' },
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
                     }}
                     open
