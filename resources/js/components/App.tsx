@@ -1,6 +1,9 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { CssBaseline, Box } from '@mui/material';
+
+import store from '../store';
 
 import AllProjects from '../pages/AllProjects';
 import YourProjects from '../pages/YourProjects';
@@ -10,7 +13,7 @@ import Navbar from './Navbar';
 
 const App = () => {
     return (
-        <div>
+        <Provider store={store}>
             <Router>
                 <CssBaseline />
                 <Navbar />
@@ -24,7 +27,7 @@ const App = () => {
                     </Switch>
                 </Box>
             </Router>
-        </div>
+        </Provider>
     )
 }
 

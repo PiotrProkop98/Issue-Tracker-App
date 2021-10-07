@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
     Button, 
@@ -17,161 +17,57 @@ import {
     Typography
 } from '@mui/material';
 
-interface ProjectsState {
-    data: [
-        {
-            created_at: string,
-            updated_at: string,
-            id: number,
-            is_private: number,
-            name: string
-        }
-    ]
-};
+import { fetchProjects } from '../store/projects';
+import { RootState } from '../store';
 
 const AllProjects = () => {
-    const [projects, setProjects] = useState<ProjectsState>();
-    const [isLoading, setIsloading] = useState<boolean>(true);
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [lastPage, setLastPage] = useState<number>(1);
-    const [nextPageUrl, setNextPageUrl] = useState<string>('');
-    const [prevPageUrl, setPrevPageUrl] = useState<string>('');
-    const [firstPageUrl, setFirstPageUrl] = useState<string>('');
-    const [lastPageUrl, setLastPageUrl] = useState<string>('');
+    const dispatch = useDispatch();
+    const { projects } = useSelector((state: RootState) => state.projectSlice);
 
-    const base_url = 'http://localhost:8100/api/projects';
+    const [isLoading, setIsloading] = useState<boolean>(true);
+    const [currentPage, setCurrentPage] = useState<string>('1');
+    const [lastPage, setLastPage] = useState<string>('1');
 
     useEffect(() => {
+        setCurrentPage('1');
         setIsloading(true);
 
-        const source = axios.CancelToken.source();
-        let mounted = true;
+        const fetch = async () => {
+            dispatch(fetchProjects(currentPage));
 
-        const fetchProjects = async () => {
-            try {
-                const response = await axios.get(base_url);
-
-                if (!mounted) return;
-
-                console.log(response.data);
-
-                setProjects(response.data);
-
-                setCurrentPage(response.data.current_page);
-                setLastPage(response.data.last_page);
-                setLastPageUrl(response.data.last_page_url);
-                setFirstPageUrl(response.data.first_page_url);
-
-                if (prevPageUrl === null) {
-                    setPrevPageUrl('');
-                } else {
-                    setPrevPageUrl(response.data.prev_page_url);
-                }
-
-                if (nextPageUrl === null) {
-                    setNextPageUrl('');
-                } else {
-                    setNextPageUrl(response.data.next_page_url);
-                }
-
-                setIsloading(false);
-            } catch (err) {
-                if (axios.isCancel(err)) console.error(err);
-            }
+            setIsloading(false);
+            setLastPage(String(projects.last_page));
         };
 
-        fetchProjects();
+        fetch();
+    }, [dispatch]);
 
-        return () => {
-            source.cancel();
-            mounted = false;
-        };
-    }, []);
+    const handlePrev = () => {
+        if (currentPage === '1') return;
 
-    const handlePrev = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        if (prevPageUrl === '' || currentPage === 1) return;
-
+        setCurrentPage(String(Number(currentPage) - 1));
         setIsloading(true);
 
-        const source = axios.CancelToken.source();
-        let mounted = true;
-
-        const fetchProjects = async () => {
-            try {
-                const response = await axios.get(nextPageUrl, { cancelToken: source.token });
-
-                if (!mounted) return;
-
-                console.log(response.data);
-
-                setProjects(response.data);
-
-                setCurrentPage(response.data.current_page);
-                setLastPageUrl(response.data.last_page_url);
-                setFirstPageUrl(response.data.first_page_url);
-                setNextPageUrl(response.data.next_page_url);
-
-                if (prevPageUrl == null) {
-                    setPrevPageUrl('');
-                } else {
-                    setPrevPageUrl(response.data.prev_page_url);
-                }
-
-                setIsloading(false);
-            } catch (err) {
-                if (axios.isCancel(err)) console.error(err);
-            }
+        const fetch = async () => {
+            await dispatch(fetchProjects(currentPage));
+            setIsloading(false);
         };
 
-        fetchProjects();
-
-        return () => {
-            source.cancel();
-            mounted = false;
-        };
+        fetch();
     };
 
-    const handleNext = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        if (nextPageUrl === '' || currentPage === lastPage) return;
+    const handleNext = () => {
+        if (currentPage === lastPage) return;
 
+        setCurrentPage(String(Number(currentPage) + 1));
         setIsloading(true);
-        
-        const source = axios.CancelToken.source();
-        let mounted = true;
 
-        const fetchProjects = async () => {
-            try {
-                const response = await axios.get(nextPageUrl, { cancelToken: source.token });
-
-                if (!mounted) return;
-
-                console.log(response.data);
-
-                setProjects(response.data);
-
-                setCurrentPage(response.data.current_page);
-                setLastPageUrl(response.data.last_page_url);
-                setFirstPageUrl(response.data.first_page_url);
-                setPrevPageUrl(response.data.prev_page_url);
-
-                if (nextPageUrl == null) {
-                    setNextPageUrl('');
-                } else {
-                    setNextPageUrl(response.data.next_page_url);
-                }
-
-                setIsloading(false);
-            } catch (err) {
-                if (axios.isCancel(err)) console.error(err);
-            }
+        const fetch = async () => {
+            await dispatch(fetchProjects(currentPage));
+            setIsloading(false);
         };
 
-        fetchProjects();
-
-        return () => {
-            source.cancel();
-            mounted = false;
-        };
+        fetch();
     };
 
     let projectsJsx;
@@ -188,7 +84,7 @@ const AllProjects = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        { projects!.data.map((project, i) => (
+                        { projects!.data.map((project: any, i: number) => (
                             <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                 <TableCell component="th" scope="row">
                                     { project.name }
@@ -204,16 +100,16 @@ const AllProjects = () => {
     let prevButtonJsx;
     let nextButtonJsx;
 
-    if (prevPageUrl === '' || currentPage === 1) {
+    if (currentPage === '1') {
         prevButtonJsx = <Button disabled>Prev</Button>;
     } else {
-        prevButtonJsx = <Button onClick={e => handlePrev(e)}>Prev</Button>;
+        prevButtonJsx = <Button onClick={handlePrev}>Prev</Button>;
     }
 
-    if (nextPageUrl === '' || currentPage === lastPage) {
+    if (currentPage === lastPage) {
         nextButtonJsx = <Button disabled>Next</Button>;
     } else {
-        nextButtonJsx = <Button onClick={e => handleNext(e)}>Next</Button>;
+        nextButtonJsx = <Button onClick={handleNext}>Next</Button>;
     }
 
     return (
