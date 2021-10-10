@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { useAppDispatch } from '../store';
+
 import {
     Button, 
     ButtonGroup, 
@@ -21,96 +23,82 @@ import { fetchProjects } from '../store/projects';
 import { RootState } from '../store';
 
 const AllProjects = () => {
-    const dispatch = useDispatch();
-    const { projects } = useSelector((state: RootState) => state.projectSlice);
+    const dispatch = useAppDispatch();
+    const { projects, last_page, loaded } = useSelector((state: RootState) => state.projectSlice);
 
     const [isLoading, setIsloading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<string>('1');
-    const [lastPage, setLastPage] = useState<string>('1');
+    const [lastPage, setLastPage] = useState<number>(1);
+
+    const [projectsJsx, setProjectsJsx] = useState<any>();
+    const [prevButtonJsx, setPrevButtonJsx] = useState<any>();
+    const [nextButtonJsx, setNextButtonJsx] = useState<any>();
 
     useEffect(() => {
         setCurrentPage('1');
+    }, []);
+
+    useEffect(() => {
+        setLastPage(Number(last_page));
+
         setIsloading(true);
 
-        const fetch = async () => {
-            dispatch(fetchProjects(currentPage));
-
-            setIsloading(false);
-            setLastPage(String(projects.last_page));
-        };
-
-        fetch();
-    }, [dispatch]);
+        dispatch(fetchProjects(Number(currentPage)))
+            .unwrap()
+            .then(result => {
+                setIsloading(false);
+            })
+            .catch(err => console.error(err));
+    }, [currentPage]);
 
     const handlePrev = () => {
         if (currentPage === '1') return;
-
         setCurrentPage(String(Number(currentPage) - 1));
-        setIsloading(true);
-
-        const fetch = async () => {
-            await dispatch(fetchProjects(currentPage));
-            setIsloading(false);
-        };
-
-        fetch();
     };
 
     const handleNext = () => {
-        if (currentPage === lastPage) return;
-
+        if (currentPage === String(lastPage)) return;
         setCurrentPage(String(Number(currentPage) + 1));
-        setIsloading(true);
-
-        const fetch = async () => {
-            await dispatch(fetchProjects(currentPage));
-            setIsloading(false);
-        };
-
-        fetch();
     };
 
-    let projectsJsx;
-
-    if (isLoading) {
-        projectsJsx = <CircularProgress sx={{ marginBottom: '20px' }} />;
-    } else {
-        projectsJsx = (
-            <TableContainer sx={{ minWidth: '350px' }} component={Paper}>
-                <Table size="small" aria-label="public projects">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Project name</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        { projects!.data.map((project: any, i: number) => (
-                            <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                <TableCell component="th" scope="row">
-                                    { project.name }
-                                </TableCell>
+    useEffect(() => {
+        if (isLoading) {
+            setProjectsJsx(<CircularProgress sx={{ marginBottom: '20px' }} />);
+        } else {
+            setProjectsJsx(
+                <TableContainer sx={{ minWidth: '350px' }} component={Paper}>
+                    <Table size="small" aria-label="public projects">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Project name</TableCell>
                             </TableRow>
-                        )) }
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        );
-    }
+                        </TableHead>
+                        <TableBody>
+                            { projects.map((project: any, i: number) => (
+                                <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                    <TableCell component="th" scope="row">
+                                        { project.name }
+                                    </TableCell>
+                                </TableRow>
+                            )) }
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            );
+        }
 
-    let prevButtonJsx;
-    let nextButtonJsx;
+        if (currentPage === '1') {
+            setPrevButtonJsx(<Button disabled>Prev</Button>);
+        } else {
+            setPrevButtonJsx(<Button onClick={handlePrev}>Prev</Button>);
+        }
 
-    if (currentPage === '1') {
-        prevButtonJsx = <Button disabled>Prev</Button>;
-    } else {
-        prevButtonJsx = <Button onClick={handlePrev}>Prev</Button>;
-    }
-
-    if (currentPage === lastPage) {
-        nextButtonJsx = <Button disabled>Next</Button>;
-    } else {
-        nextButtonJsx = <Button onClick={handleNext}>Next</Button>;
-    }
+        if (currentPage === String(lastPage)) {
+            setNextButtonJsx(<Button disabled>Next</Button>);
+        } else {
+            setNextButtonJsx(<Button onClick={handleNext}>Next</Button>);
+        }
+    }, [isLoading]);
 
     return (
         <Container maxWidth="xs">
