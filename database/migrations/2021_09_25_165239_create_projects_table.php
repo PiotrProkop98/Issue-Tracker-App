@@ -16,6 +16,9 @@ class CreateProjectsTable extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
+            $table->text('description');
+            $table->string('developer_company_name', 255);
+            $table->string('client_company_name', 255);
             $table->boolean('is_private');
             $table->timestamps();
         });

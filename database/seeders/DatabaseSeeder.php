@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Project::factory()
-            ->count(10)
+            ->count(30)
             ->has(User::factory()->count(3))
             ->create();
         
