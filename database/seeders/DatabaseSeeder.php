@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Issue;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,6 +31,7 @@ class DatabaseSeeder extends Seeder
         Project::factory()
             ->count(60)
             ->has(User::factory()->count(3))
+            ->has(Issue::factory()->count(5))
             ->create();
         
         User::factory()
