@@ -19,27 +19,14 @@ import {
     Typography
 } from '@mui/material';
 
-import { fetchProjects } from '../store/projects';
+import { fetchProjects, setLoaded, setCurrentPage } from '../store/projects';
 import { RootState } from '../store';
-
-const modalStyle = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-};
 
 const AllProjects = () => {
     const dispatch = useAppDispatch();
-    const { projects, last_page, loaded } = useSelector((state: RootState) => state.projectSlice);
+    const { projects, last_page, loaded, current_page } = useSelector((state: RootState) => state.projectSlice);
 
     const [isLoading, setIsloading] = useState<boolean>(true);
-    const [currentPage, setCurrentPage] = useState<string>('1');
 
     const [projectsJsx, setProjectsJsx] = useState<any>();
     const [prevButtonJsx, setPrevButtonJsx] = useState<any>();
@@ -47,29 +34,37 @@ const AllProjects = () => {
     const [pageButtonsJsx, setPageButtonsJsx] = useState<any>();
 
     useEffect(() => {
-        setCurrentPage('1');
-    }, []);
+        if (loaded) {
+            setIsloading(false);
+            return;
+        }
 
-    useEffect(() => {
         setIsloading(true);
 
-        dispatch(fetchProjects(Number(currentPage)))
+        dispatch(fetchProjects(Number(current_page)))
             .unwrap()
             .then(result => {
                 setIsloading(false);
             })
             .catch(err => console.error(err));
-    }, [currentPage]);
+    }, [current_page]);
 
     const handlePrev = () => {
-        if (currentPage === '1') return;
-        setCurrentPage(String(Number(currentPage) - 1));
+        if (current_page === '1') return;
+        dispatch(setLoaded(false));
+        dispatch(setCurrentPage(String(Number(current_page) - 1)));
     };
 
     const handleNext = () => {
-        if (currentPage === last_page) return;
-        setCurrentPage(String(Number(currentPage) + 1));
+        if (current_page === last_page) return;
+        dispatch(setLoaded(false));
+        dispatch(setCurrentPage(String(Number(current_page) + 1)));
     };
+
+    const handleNavButtons = (pageNumber: string) => {
+        dispatch(setLoaded(false));
+        dispatch(setCurrentPage(pageNumber));
+    }
 
     useEffect(() => {
         if (isLoading) {
@@ -97,13 +92,13 @@ const AllProjects = () => {
             );
         }
 
-        if (currentPage === '1') {
+        if (current_page === '1') {
             setPrevButtonJsx(<Button disabled>Prev</Button>);
         } else {
             setPrevButtonJsx(<Button onClick={handlePrev}>Prev</Button>);
         }
 
-        if (currentPage === String(last_page)) {
+        if (current_page === String(last_page)) {
             setNextButtonJsx(<Button disabled>Next</Button>);
         } else {
             setNextButtonJsx(<Button onClick={handleNext}>Next</Button>);
@@ -115,22 +110,22 @@ const AllProjects = () => {
             buttonsJsx = [];
         } else if (last_page === '2') {
             buttonsJsx = [
-                <Button key={1} onClick={() => setCurrentPage('1')}>1</Button>,
-                <Button key={2} onClick={() => setCurrentPage('2')}>2</Button>
+                <Button key={1} onClick={() => handleNavButtons('1')}>1</Button>,
+                <Button key={2} onClick={() => handleNavButtons('2')}>2</Button>
             ];
         } else if (last_page === '3') {
             buttonsJsx = [
-                <Button key={1} onClick={() => setCurrentPage('1')}>1</Button>,
-                <Button key={2} onClick={() => setCurrentPage('2')}>2</Button>,
-                <Button key={3} onClick={() => setCurrentPage('3')}>3</Button>
+                <Button key={1} onClick={() => handleNavButtons('1')}>1</Button>,
+                <Button key={2} onClick={() => handleNavButtons('2')}>2</Button>,
+                <Button key={3} onClick={() => handleNavButtons('3')}>3</Button>
             ]
         } else {
             buttonsJsx = [
-                <Button key={1} onClick={() => setCurrentPage('1')}>1</Button>,
-                <Button key={2} onClick={() => setCurrentPage('2')}>2</Button>,
-                <Button key={3} onClick={() => setCurrentPage('3')}>3</Button>,
+                <Button key={1} onClick={() => handleNavButtons('1')}>1</Button>,
+                <Button key={2} onClick={() => handleNavButtons('2')}>2</Button>,
+                <Button key={3} onClick={() => handleNavButtons('3')}>3</Button>,
                 <Button key={4}>...</Button>,
-                <Button key={5} onClick={() => setCurrentPage(last_page)}>{ last_page }</Button>
+                <Button key={5} onClick={() => handleNavButtons(last_page)}>{ last_page }</Button>
             ]
         }
 
@@ -148,7 +143,7 @@ const AllProjects = () => {
                         { nextButtonJsx }
                     </ButtonGroup>
                     <Typography mt={1} variant="h6" component="div">
-                        Page: {currentPage}
+                        Page: {current_page}
                     </Typography>
                 </Grid>
             }

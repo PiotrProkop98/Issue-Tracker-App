@@ -15,12 +15,19 @@ const projectSlice = createSlice({
     name: 'projects',
     initialState: {
         last_page: '',
+        current_page: '1',
         projects: [],
         loaded: false
     },
     reducers: {
         setProjects: (state, action) => {
             state.projects = action.payload;
+        },
+        setLoaded: (state, action) => {
+            state.loaded = action.payload;
+        },
+        setCurrentPage: (state, action) => {
+            state.current_page = action.payload;
         }
     },
     extraReducers: builder => {
@@ -31,5 +38,7 @@ const projectSlice = createSlice({
         });
     }
 });
+
+export const { setProjects, setLoaded, setCurrentPage } = projectSlice.actions;
 
 export default projectSlice.reducer;
