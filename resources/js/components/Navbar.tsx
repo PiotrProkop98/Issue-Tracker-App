@@ -19,7 +19,7 @@ const Navbar = () => {
         'Public projects',
         'Your projects',
         'Log in',
-        'Sing in'
+        'Sing up'
     ];
     
     const urls = [
