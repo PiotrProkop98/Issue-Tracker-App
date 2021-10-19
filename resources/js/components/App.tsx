@@ -6,6 +6,7 @@ import { CssBaseline, Box } from '@mui/material';
 import store from '../store';
 
 import AllProjects from '../pages/AllProjects';
+import Project from '../pages/Project';
 import YourProjects from '../pages/YourProjects';
 import Login from '../pages/Login';
 import Register from '../pages/Register'
@@ -24,6 +25,7 @@ const App = () => {
                         <Route path="/your-projects" component={YourProjects} />
                         <Route path="/login" component={Login} />
                         <Route path="/register" component={Register} />
+                        <Route path="/project/:id" component={Project} />
                     </Switch>
                 </Box>
             </Router>

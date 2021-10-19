@@ -1,26 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 import { useAppDispatch } from '../store';
 
 import {
+    Box,
     Button, 
     ButtonGroup, 
+    Card, 
+    CardContent, 
     CircularProgress, 
     Container, 
     Grid,
-    Paper, 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableContainer, 
-    TableHead, 
-    TableRow,
     Typography
 } from '@mui/material';
 
 import { fetchProjects, setLoaded, setCurrentPage } from '../store/projects';
 import { RootState } from '../store';
+
+interface Project {
+    id: number,
+    name: string,
+    description: string,
+    developer_company_name: string,
+    client_company_name: string
+}
 
 const AllProjects = () => {
     const dispatch = useAppDispatch();
@@ -32,6 +37,8 @@ const AllProjects = () => {
     const [prevButtonJsx, setPrevButtonJsx] = useState<any>();
     const [nextButtonJsx, setNextButtonJsx] = useState<any>();
     const [pageButtonsJsx, setPageButtonsJsx] = useState<any>();
+
+    const history = useHistory();
 
     useEffect(() => {
         if (loaded) {
@@ -71,34 +78,46 @@ const AllProjects = () => {
             setProjectsJsx(<CircularProgress sx={{ marginBottom: '20px' }} />);
         } else {
             setProjectsJsx(
-                <TableContainer sx={{ minWidth: '350px' }} component={Paper}>
-                    <Table size="small" aria-label="public projects">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Project name</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            { projects.map((project: any, i: number) => (
-                                <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                    <TableCell component="th" scope="row">
-                                        { project.name }
-                                    </TableCell>
-                                </TableRow>
+                <Box>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            { projects.map((project: Project) => (
+                                <Card key={project.name} sx={{ marginBottom: '25px' }}>
+                                    <CardContent>
+                                        <Typography variant="h6" gutterBottom>{ project.name }</Typography>
+                                        <Typography variant="subtitle2" gutterBottom>{ project.description }</Typography>
+                                        <Grid container spacing={1} justifyContent="center" alignItems="center">
+                                            <Grid item xs={12} sm={6}>
+                                                <Typography variant="caption">Client: { project.client_company_name }</Typography>
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <Typography variant="caption">Develop By: { project.developer_company_name }</Typography>
+                                            </Grid>
+                                        </Grid>
+                                        <Button
+                                            variant="contained"
+                                            size="small"
+                                            sx={{ marginTop: '25px' }}
+                                            onClick={() => history.push(`/project/${project.id}`)}
+                                        >
+                                            See More
+                                        </Button>
+                                    </CardContent>
+                                </Card>
                             )) }
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                        </Grid>
+                    </Grid>
+                </Box>
             );
         }
 
-        if (current_page === '1') {
+        if (current_page == '1') {
             setPrevButtonJsx(<Button disabled>Prev</Button>);
         } else {
             setPrevButtonJsx(<Button onClick={handlePrev}>Prev</Button>);
         }
 
-        if (current_page === String(last_page)) {
+        if (current_page == String(last_page)) {
             setNextButtonJsx(<Button disabled>Next</Button>);
         } else {
             setNextButtonJsx(<Button onClick={handleNext}>Next</Button>);
@@ -134,6 +153,7 @@ const AllProjects = () => {
 
     return (
         <Container maxWidth="xs">
+            <Typography variant="h4" gutterBottom>Public projects: {current_page}</Typography>
             { projectsJsx }
             { !isLoading &&
                 <Grid container direction="column" justifyContent="center" alignItems="center">
