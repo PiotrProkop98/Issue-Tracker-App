@@ -47,8 +47,8 @@ const Navbar = () => {
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="fixed" sx={{
-                width: { md: `calc(100% - ${drawerWidth}px)` },
-                ml: { md: `${drawerWidth}px` }
+                width: { lg: `calc(100% - ${drawerWidth}px)` },
+                ml: { lg: `${drawerWidth}px` }
             }}>
                 <Toolbar>
                     <IconButton
@@ -57,7 +57,7 @@ const Navbar = () => {
                         color="inherit"
                         aria-label="menu"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, cursor: 'pointer', display: { xs: 'block', md: 'none' }}}
+                        sx={{ mr: 2, cursor: 'pointer', display: { xs: 'block', lg: 'none' }}}
                     >
                         <MenuIcon />
                     </IconButton>
@@ -68,7 +68,7 @@ const Navbar = () => {
             </AppBar>
             <Box
                 component="nav"
-                sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+                sx={{ width: { lg: drawerWidth }, flexShrink: { lg: 0 } }}
                 aria-label="mailbox folders"
             >
                 <Drawer
@@ -79,7 +79,7 @@ const Navbar = () => {
                         keepMounted: true
                     }}
                     sx={{
-                        display: { xs: 'block', md: 'none' },
+                        display: { xs: 'block', lg: 'none' },
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
                     }}
                 >
@@ -88,7 +88,7 @@ const Navbar = () => {
                 <Drawer
                     variant="permanent"
                     sx={{
-                        display: { xs: 'none', md: 'block' },
+                        display: { xs: 'none', lg: 'block' },
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
                     }}
                     open
