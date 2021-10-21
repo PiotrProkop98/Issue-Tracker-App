@@ -152,8 +152,8 @@ const AllProjects = () => {
     }, [isLoading]);
 
     return (
-        <Container maxWidth="xs">
-            <Typography variant="h4" gutterBottom>Public projects: {current_page}</Typography>
+        <Container maxWidth="sm">
+            <Typography variant="h4" gutterBottom>Public projects Page: {current_page}</Typography>
             { projectsJsx }
             { !isLoading &&
                 <Grid container direction="column" justifyContent="center" alignItems="center">

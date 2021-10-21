@@ -20,11 +20,17 @@ class ProjectTest extends TestCase
     {
         Project::create([
             'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
             'is_private' => false
         ]);
 
         Project::create([
             'name' => 'This project should NOT be visible.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
             'is_private' => true
         ]);
 
@@ -50,21 +56,33 @@ class ProjectTest extends TestCase
 
         $project_private = Project::create([
             'name' => 'Private project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
             'is_private' => true
         ]);
 
         $project_public = Project::create([
             'name' => 'Public project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
             'is_private' => false
         ]);
 
         Project::create([
             'name' => 'This project should NOT be visible.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
             'is_private' => false
         ]);
 
         Project::create([
             'name' => 'This project should NOT be visible as well.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
             'is_private' => true
         ]);
 
@@ -81,5 +99,48 @@ class ProjectTest extends TestCase
             ->assertJsonFragment(['name' => 'Public project.'])
             ->assertJsonMissing(['name' => 'This project should NOT be visible.'])
             ->assertJsonMissing(['name' => 'This project should NOT be visible as well.']);
+    }
+
+    public function test_view_returns_correct_json()
+    {
+        Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $project = Project::get()->first();
+
+        $response = $this->json('GET', '/api/projects/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'name' => 'Test project.'
+            ]);
+    }
+
+    public function test_view_private_project_returns_404()
+    {
+        Project::create([
+            'name' => 'Private project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $project = Project::get()->first();
+
+        $response = $this->json('GET', '/api/projects/' . $project->id);
+
+        $response
+            ->assertStatus(404)
+            ->assertJsonFragment([
+                'success' => false,
+                'message' => '404 Not Found.'
+            ]);
     }
 }

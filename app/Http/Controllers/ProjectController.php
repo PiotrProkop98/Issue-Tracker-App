@@ -19,6 +19,22 @@ class ProjectController extends Controller
         return response()->json($projects, 200);
     }
 
+    public function view($id)
+    {
+        $error = [
+            'success' => false,
+            'message' => '404 Not Found.'
+        ];
+
+        $project = Project::where('id', '=', $id)->first();
+
+        if (!$project || $project->is_private == 1) {
+            return response()->json($error, 404);
+        }
+
+        return response()->json($project, 200);
+    }
+
     public function projects_user_belongs_to_only(Request $request)
     {
         $projects = $request
