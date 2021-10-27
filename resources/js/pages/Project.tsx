@@ -65,7 +65,7 @@ const Project = () => {
                                     <Typography variant="caption">Developer: { project?.developer_company_name }</Typography>
                                 </Grid>
                                 <Grid item xs={6}>
-                                    <Typography variant="caption">Client: { project?.developer_company_name }</Typography>
+                                    <Typography variant="caption">Client: { project?.client_company_name }</Typography>
                                 </Grid>
                             </Grid>
                             <Typography variant="body2">{ project?.description }</Typography>
