@@ -56,23 +56,23 @@ const Project = () => {
     } else {
         returnJsx = (
             <Grid container spacing={2} direction="row" justifyContent="center">
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12}>
                     <Card>
                         <CardContent>
-                            <Typography variant="h6">{ project?.name }</Typography>
+                            <Typography variant="h5" gutterBottom>Project: { project?.name }</Typography>
+                            <Typography variant="body1" gutterBottom>{ project?.description }</Typography>
                             <Grid container spacing={1} direction="row" justifyContent="center">
                                 <Grid item xs={6}>
-                                    <Typography variant="caption">Developer: { project?.developer_company_name }</Typography>
+                                    <Typography variant="h6">Developer: { project?.developer_company_name }</Typography>
                                 </Grid>
                                 <Grid item xs={6}>
-                                    <Typography variant="caption">Client: { project?.client_company_name }</Typography>
+                                    <Typography variant="h6">Client: { project?.client_company_name }</Typography>
                                 </Grid>
                             </Grid>
-                            <Typography variant="body2">{ project?.description }</Typography>
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} sm={8}>
+                <Grid item xs={12}>
                     <Card>
                         Issues
                     </Card>
@@ -83,7 +83,7 @@ const Project = () => {
     }
 
     return (
-        <Container maxWidth="lg">
+        <Container maxWidth="md">
             <Box>
                 { returnJsx }
             </Box>
