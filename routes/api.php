@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\IssueController;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -29,3 +30,4 @@ Route::post('/register', [UserController::class, 'register']);
 Route::get('/projects', [ProjectController::class, 'index']);
 Route::get('/projects/projects-user-belongs-to-only', [ProjectController::class, 'projects_user_belongs_to_only'])->middleware('auth:sanctum');
 Route::get('/projects/{id}', [ProjectController::class, 'view']);
+Route::get('/issues/{project_id}', [IssueController::class, 'all']);

@@ -22,7 +22,7 @@ class Project extends Model
         return $this->belongsToMany(User::class, 'project_users');
     }
 
-    public function issue()
+    public function issues()
     {
         return $this->hasMany(Issue::class);
     }

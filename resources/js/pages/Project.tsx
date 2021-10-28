@@ -7,7 +7,11 @@ import {
     CardContent,
     CircularProgress,
     Container,
+    Divider,
     Grid,
+    List,
+    ListItem,
+    ListItemText,
     Typography
 } from '@mui/material';
 
@@ -26,15 +30,30 @@ interface ProjectData {
     updated_at: string
 }
 
+interface IssueData {
+    id: number,
+    title: string,
+    description: string,
+    status: string,
+    project_id: number,
+    user_id: number,
+    created_at: string,
+    updated_at: string
+}
+
 const Project = () => {
     const { id } = useParams<ParamTypes>();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [project, setProject] = useState<ProjectData>();
     const [projectJsx, setProjectJsx] = useState<ReactElement>();
+    const [isIssuesLoading, setIsIssuesLoading] = useState<boolean>(false);
+    const [issues, setIssues] = useState<IssueData[]>();
+    const [issueJsx, setIssueJsx] = useState<ReactElement>();
 
     useEffect(() => {
         setIsLoading(true);
+        setIsIssuesLoading(true);
 
         axios.get(`/api/projects/${id}`)
             .then(response => {
@@ -45,9 +64,35 @@ const Project = () => {
                         { project }
                     </Box>
                 );
+
+                axios.get(`/api/issues/${id}`)
+                    .then(response => {
+                        setIssues(response.data);
+                        setIsIssuesLoading(false);
+                    })
+                    .catch(err => setProjectJsx(<Typography>500 Server Error</Typography>));
             })
             .catch(err => setProjectJsx(<Typography>500 Server Error</Typography>));
     }, []);
+
+    useEffect(() => {
+        setIssueJsx(
+            <List sx={{ width: '100%' }} component="nav">
+                { issues?.map((issue: IssueData, i: number) => {
+                    return (
+                        <>
+                            <ListItem button key={i}>
+                                <ListItemText primary={ 
+                                    `Issue: ${issue.title} | Status: ${issue.status} | Added: ${issue.created_at}`
+                                    } />
+                            </ListItem>
+                            <Divider />
+                        </>
+                    );
+                }) }
+            </List>
+        );
+    }, [issues]);
 
     let returnJsx;
 
@@ -73,9 +118,7 @@ const Project = () => {
                     </Card>
                 </Grid>
                 <Grid item xs={12}>
-                    <Card>
-                        Issues
-                    </Card>
+                    { isIssuesLoading ? <CircularProgress sx={{ marginBottom: '20px' }} /> : issueJsx }
                 </Grid>
                 { projectJsx }
             </Grid>
