@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import {
     Box,
@@ -80,14 +80,16 @@ const Project = () => {
             <List sx={{ width: '100%' }} component="nav">
                 { issues?.map((issue: IssueData, i: number) => {
                     return (
-                        <>
-                            <ListItem button key={i}>
-                                <ListItemText primary={ 
-                                    `Issue: ${issue.title} | Status: ${issue.status} | Added: ${issue.created_at}`
-                                    } />
-                            </ListItem>
+                        <div key={i}>
+                            <Link to={`/issue/${issue.id}`} className="link">
+                                <ListItem button>
+                                    <ListItemText primary={ 
+                                        `Issue: ${issue.title} | Status: ${issue.status} | Added: ${issue.created_at}`
+                                        } />
+                                </ListItem>
+                            </Link>
                             <Divider />
-                        </>
+                        </div>
                     );
                 }) }
             </List>
@@ -105,7 +107,7 @@ const Project = () => {
                     <Card>
                         <CardContent>
                             <Typography variant="h5" gutterBottom>Project: { project?.name }</Typography>
-                            <Typography variant="body1" gutterBottom>{ project?.description }</Typography>
+                            <Typography variant="body1" gutterBottom>Description: { project?.description }</Typography>
                             <Grid container spacing={1} direction="row" justifyContent="center">
                                 <Grid item xs={6}>
                                     <Typography variant="h6">Developer: { project?.developer_company_name }</Typography>

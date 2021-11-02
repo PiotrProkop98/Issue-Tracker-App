@@ -10,6 +10,7 @@ import Project from '../pages/Project';
 import YourProjects from '../pages/YourProjects';
 import Login from '../pages/Login';
 import Register from '../pages/Register'
+import Issue from '../pages/Issue';
 import Navbar from './Navbar';
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
                         <Route path="/login" component={Login} />
                         <Route path="/register" component={Register} />
                         <Route path="/project/:id" children={<Project />} />
+                        <Route path="/issue/:id" children={<Issue />} />
                     </Switch>
                 </Box>
             </Router>
