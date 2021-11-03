@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import {
     Box,
@@ -46,7 +46,6 @@ const Project = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [project, setProject] = useState<ProjectData>();
-    const [projectJsx, setProjectJsx] = useState<ReactElement>();
     const [isIssuesLoading, setIsIssuesLoading] = useState<boolean>(false);
     const [issues, setIssues] = useState<IssueData[]>();
     const [issueJsx, setIssueJsx] = useState<ReactElement>();
@@ -59,20 +58,15 @@ const Project = () => {
             .then(response => {
                 setIsLoading(false);
                 setProject(response.data);
-                setProjectJsx(
-                    <Box>
-                        { project }
-                    </Box>
-                );
 
                 axios.get(`/api/issues/${id}`)
                     .then(response => {
                         setIssues(response.data);
                         setIsIssuesLoading(false);
                     })
-                    .catch(err => setProjectJsx(<Typography>500 Server Error</Typography>));
+                    .catch(err => console.error(err));
             })
-            .catch(err => setProjectJsx(<Typography>500 Server Error</Typography>));
+            .catch(err => console.error(err));
     }, []);
 
     useEffect(() => {
@@ -80,14 +74,16 @@ const Project = () => {
             <List sx={{ width: '100%' }} component="nav">
                 { issues?.map((issue: IssueData, i: number) => {
                     return (
-                        <>
-                            <ListItem button key={i}>
-                                <ListItemText primary={ 
-                                    `Issue: ${issue.title} | Status: ${issue.status} | Added: ${issue.created_at}`
-                                    } />
-                            </ListItem>
+                        <div key={i}>
+                            <Link to={`/issue/${issue.id}`} className="link">
+                                <ListItem button key={i}>
+                                    <ListItemText primary={ 
+                                        `Issue: ${issue.title} | Status: ${issue.status} | Added: ${issue.created_at}`
+                                        } />
+                                </ListItem>
+                            </Link>
                             <Divider />
-                        </>
+                        </div>
                     );
                 }) }
             </List>
@@ -120,7 +116,6 @@ const Project = () => {
                 <Grid item xs={12}>
                     { isIssuesLoading ? <CircularProgress sx={{ marginBottom: '20px' }} /> : issueJsx }
                 </Grid>
-                { projectJsx }
             </Grid>
         );
     }

@@ -11,6 +11,7 @@ import YourProjects from '../pages/YourProjects';
 import Login from '../pages/Login';
 import Register from '../pages/Register'
 import Navbar from './Navbar';
+import Issue from '../pages/Issue';
 
 const App = () => {
     return (
@@ -26,6 +27,7 @@ const App = () => {
                         <Route path="/login" component={Login} />
                         <Route path="/register" component={Register} />
                         <Route path="/project/:id" children={<Project />} />
+                        <Route path="/issue/:id" children={<Issue />} />
                     </Switch>
                 </Box>
             </Router>
