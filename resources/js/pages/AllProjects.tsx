@@ -16,7 +16,7 @@ import {
     Typography
 } from '@mui/material';
 
-import { fetchProjects, setLoaded, setCurrentPage } from '../store/projects';
+import { fetchProjects, setLoaded, setCurrentPage, setProjects } from '../store/projects';
 import { RootState } from '../store';
 
 interface Project {
@@ -76,7 +76,7 @@ const AllProjects = () => {
     useEffect(() => {
         if (isLoading) {
             setProjectsJsx(<CircularProgress sx={{ marginBottom: '20px' }} />);
-        } else {
+        } else if (projects.length !== 0) {
             setProjectsJsx(
                 <Box>
                     <Grid container spacing={2}>
@@ -148,7 +148,14 @@ const AllProjects = () => {
             ]
         }
 
-        setPageButtonsJsx(buttonsJsx);
+        if (projects.length === 0 && !isLoading) {
+            setProjectsJsx(<Typography variant="h5">No projects found :(</Typography>);
+            setPageButtonsJsx([]);
+            setPrevButtonJsx([]);
+            setNextButtonJsx([]);
+        } else {
+            setPageButtonsJsx(buttonsJsx);
+        }
     }, [isLoading]);
 
     return (
@@ -162,9 +169,11 @@ const AllProjects = () => {
                         { pageButtonsJsx.map((btn: any) => btn) }
                         { nextButtonJsx }
                     </ButtonGroup>
-                    <Typography mt={1} variant="h6" component="div">
-                        Page: {current_page}
-                    </Typography>
+                    {(projects.length !== 0) && (
+                        <Typography mt={1} variant="h6" component="div">
+                            Page: {current_page}
+                        </Typography>
+                    )}
                 </Grid>
             }
         </Container>
