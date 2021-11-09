@@ -11,6 +11,7 @@ import YourProjects from '../pages/YourProjects';
 import Login from '../pages/Login';
 import Register from '../pages/Register'
 import Navbar from './Navbar';
+import Footer from './Footer';
 import Issue from '../pages/Issue';
 
 const App = () => {
@@ -30,6 +31,8 @@ const App = () => {
                         <Route path="/issue/:id" children={<Issue />} />
                     </Switch>
                 </Box>
+
+                <Footer />
             </Router>
         </Provider>
     )
