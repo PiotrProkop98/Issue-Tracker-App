@@ -74,9 +74,14 @@ class IssueController extends Controller
         if (!$user) {
             return response()->json($error, 404);
         } else {
+            $userData = [
+                'id' => $user->id,
+                'name' => $user->name
+            ];
+
             return response()->json([
                 'success' => true,
-                'user' => $user
+                'user' => $userData
             ], 200);
         }
     }
