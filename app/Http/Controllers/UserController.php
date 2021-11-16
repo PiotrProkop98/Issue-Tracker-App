@@ -84,4 +84,17 @@ class UserController extends Controller
             'token' => $token->plainTextToken
         ], 201);
     }
+
+    public function isEmailTaken(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email|unique:users'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['taken' => true], 200);
+        }
+
+        return response()->json(['taken' => false], 200);
+    }
 }

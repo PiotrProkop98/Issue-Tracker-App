@@ -255,4 +255,50 @@ class UserTest extends TestCase
             ->assertStatus(200)
             ->assertJson($expected_json_data);
     }
+
+    public function test_is_email_taken_returns_true()
+    {
+        User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'email' => 'piotr1@gmail.com'
+        ];
+
+        $expected_json_data = [
+            'taken' => true
+        ];
+
+        $response = $this->json('POST', '/api/user/is-email-taken', $json_object);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_is_email_taken_returns_false()
+    {
+        User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'email' => 'diffrentemail@gmail.com'
+        ];
+
+        $expected_json_data = [
+            'taken' => false
+        ];
+
+        $response = $this->json('POST', '/api/user/is-email-taken', $json_object);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
 }
