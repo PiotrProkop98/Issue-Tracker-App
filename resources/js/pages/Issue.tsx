@@ -33,7 +33,7 @@ const Issue = () => {
             .then(response => {
                 setIssue(response.data);
 
-                if (issue?.user_id !== null) {
+                if (issue?.user_id !== null && issue?.user_id !== undefined) {
                     axios.get(`/api/issue/show-user/${id}/${issue?.user_id}`)
                         .then(response1 => {
                             setUser(response1.data);
@@ -55,7 +55,7 @@ const Issue = () => {
                 <Card>
                     <CardContent>
                         <Typography variant="h5" gutterBottom>Issue: { issue?.title }</Typography>
-                        <Typography variant="h5" gutterBottom>Assign to: { (issue?.user_id === null) ? 'Unassign' : user?.name }</Typography>
+                        <Typography variant="h5" gutterBottom>Assign to: { (issue?.user_id === null) ? 'Unassigned' : user?.name }</Typography>
                         <Typography variant="body1" gutterBottom>Problem description: { issue?.description }</Typography>
                         <Typography variant="h6" gutterBottom>Status: { issue?.status }</Typography>
                         <Typography variant="h6" gutterBottom>Added: { issue?.created_at }</Typography>
