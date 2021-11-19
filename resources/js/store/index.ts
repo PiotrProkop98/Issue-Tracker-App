@@ -3,9 +3,11 @@ import { useDispatch } from 'react-redux';
 import { combineReducers } from 'redux';
 
 import projectSlice from './projects';
+import userSlice from './user';
 
 const reducer = combineReducers({
-    projectSlice
+    projectSlice,
+    userSlice
 });
 
 const store = configureStore({ reducer });

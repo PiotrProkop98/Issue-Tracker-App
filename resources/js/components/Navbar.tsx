@@ -1,33 +1,54 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { RootState, useAppDispatch } from '../store';
+import { logout, setUserFromLocalStorage } from '../store/user';
+
 import { AppBar, Box, Button, IconButton, Toolbar, Typography, Menu, List, ListItem, ListItemIcon, ListItemText, Drawer } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
-import { margin } from '@mui/system';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
+    const dispatch = useAppDispatch();
+    dispatch(setUserFromLocalStorage());
+
+    const { username } = useSelector((state: RootState) => state.userSlice);
+
     const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
+    const logoutUser = (e: any) => {
+        e.preventDefault();
+        dispatch(logout());
+    }
+
     const drawerWidth = 240;
 
-    const links = [
+    let links = [
         'Public projects',
-        'Your projects',
         'Log in',
         'Sing up'
     ];
     
-    const urls = [
+    let urls = [
         '/',
-        '/your-projects',
         '/login',
         '/register'
     ];
+
+    if (localStorage.getItem('token') === '') {
+        links = [
+            'Public projects'
+        ];
+
+        urls = [
+            '/'
+        ];
+    }
 
     const drawer = (
         <List>
@@ -43,6 +64,8 @@ const Navbar = () => {
             ))}
         </List>
     );
+
+    console.log(username);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -64,6 +87,13 @@ const Navbar = () => {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         <Link to="/" className="link">Bug tracker app</Link>
                     </Typography>
+                    { (username !== '') && 
+                        <Typography variant="caption" component="div" sx={{ flexGrow: 1, textAlign: 'right' }}>
+                            <Link to="#" className="link" onClick={(e: any) => logoutUser(e)}>
+                                Hello { username }, logout here
+                            </Link>
+                        </Typography>
+                    }
                 </Toolbar>
             </AppBar>
             <Box

@@ -13,7 +13,6 @@ const Login = () => {
     const [password, setPassword] = useState<string>('');
     const [passwordMessageJsx, setPasswordMessageJsx] = useState<any>(<></>);
     const [disabled, setDisabled] = useState<boolean>(true);
-    const [typing, setTyping] = useState<any>(false);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -46,8 +45,6 @@ const Login = () => {
             </Grid>
         );
 
-        clearTimeout(typing);
-
         const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
         if (!re.test(email.toLowerCase())) {
@@ -62,27 +59,13 @@ const Login = () => {
             return;
         }
 
-        setTyping(setTimeout(() => {
-            axios.post('http://localhost:8100/api/user/is-email-taken', { email: email })
-                .then(response => {
-                    setIsEmailValid(!response.data['taken']);
+        setIsEmailValid(true);
 
-                    if (response.data['taken']) {
-                        setEmailMessageJsx(
-                            <Grid item xs={12}>
-                                <Alert severity="error">Email already taken!</Alert>
-                            </Grid>
-                        );
-                    } else {
-                        setEmailMessageJsx(
-                            <Grid item xs={12}>
-                                <Alert severity="success">Email valid!</Alert>
-                            </Grid>
-                        );
-                    }
-                })
-                .catch(err => console.error(err));
-        }, 1000));
+        setEmailMessageJsx(
+            <Grid item xs={12}>
+                <Alert severity="success">Email valid!</Alert>
+            </Grid>
+        );
     }, [email]);
 
     useEffect(() => {
