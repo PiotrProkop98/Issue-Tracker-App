@@ -4,10 +4,12 @@ import { combineReducers } from 'redux';
 
 import projectSlice from './projects';
 import userSlice from './user';
+import linksSlice from './links';
 
 const reducer = combineReducers({
     projectSlice,
-    userSlice
+    userSlice,
+    linksSlice
 });
 
 const store = configureStore({ reducer });

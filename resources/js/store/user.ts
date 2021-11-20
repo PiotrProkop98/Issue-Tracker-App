@@ -7,7 +7,9 @@ export const logout = createAsyncThunk(
     'user/logout',
     async () => {
         const token = localStorage.getItem('token');
-        await axios.post(baseUrl + 'logout', { token: token });
+        await axios.post(baseUrl + 'logout', {} , { headers: { 'Authorization': `Bearer ${token}` }});
+        localStorage.removeItem('username');
+        localStorage.removeItem('token');
     }
 );
 
@@ -23,6 +25,13 @@ const userSlice = createSlice({
                 state.username = String(localStorage.getItem('username'));
                 state.token = String(localStorage.getItem('token'));
             }
+        },
+        login: (state, action) => {
+            state.username = action.payload.username;
+            state.token = action.payload.token;
+
+            localStorage.setItem('username', action.payload.username);
+            localStorage.setItem('token', action.payload.token);
         }
     },
     extraReducers: builder => {
@@ -34,6 +43,6 @@ const userSlice = createSlice({
     }
 });
 
-export const { setUserFromLocalStorage } = userSlice.actions;
+export const { setUserFromLocalStorage, login } = userSlice.actions;
 
 export default userSlice.reducer;

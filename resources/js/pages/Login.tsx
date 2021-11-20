@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+
+import { useAppDispatch } from '../store';
+import { login } from '../store/user';
+import { setLoggedInLinks } from '../store/links';
+
 import { Box, Container, Typography, Grid, TextField, Button, Alert, LinearProgress } from '@mui/material';
 
 const Login = () => {
+    const dispatch = useAppDispatch();
+
+    const history = useHistory();
+
     const [initialPageLoading, setInitialPageLoading] = useState<boolean>(true);
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
     const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
@@ -17,9 +28,45 @@ const Login = () => {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!isFormValid) {
+            return;
+        }
+
         const data = new FormData(e.currentTarget);
 
-        console.log(data.get('email'), data.get('password'));
+        const email = data.get('email');
+        const password = data.get('password');
+
+        const object = {
+            email: email,
+            password: password
+        };
+
+        axios.get('http://localhost:8100/sanctum/csrf-cookie').then(response => {
+            axios.post('http://localhost:8100/api/login', object)
+                .then(response => {
+                    if (response.status === 200) {
+                        const loginData = {
+                            username: response.data.name,
+                            token: response.data.token
+                        };
+
+                        dispatch(login(loginData));
+                        dispatch(setLoggedInLinks());
+
+                        history.push('/');
+                    } else {
+                        setIsEmailValid(false);
+                        setIsPasswordValid(false);
+                        setPasswordMessageJsx(
+                            <Grid item xs={12}>
+                                <Alert severity="error">Credential invalid!</Alert>
+                            </Grid>
+                        );
+                    }
+                })
+                .catch(err => console.error(err));
+        });
     };
 
     const onEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 
+import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../store';
 import { logout, setUserFromLocalStorage } from '../store/user';
+import { setLoggedOutLinks, setLoggedInLinks } from '../store/links';
 
 import { AppBar, Box, Button, IconButton, Toolbar, Typography, Menu, List, ListItem, ListItemIcon, ListItemText, Drawer } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
-import { useSelector } from 'react-redux';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();
-    dispatch(setUserFromLocalStorage());
+    const history = useHistory();
 
     const { username } = useSelector((state: RootState) => state.userSlice);
+    const { links, urls } = useSelector((state: RootState) => state.linksSlice);
 
     const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 
@@ -23,32 +25,23 @@ const Navbar = () => {
 
     const logoutUser = (e: any) => {
         e.preventDefault();
+
         dispatch(logout());
+        dispatch(setLoggedOutLinks());
+
+        history.push('/');
     }
+
+    useEffect(() => {
+        dispatch(setLoggedOutLinks());
+
+        if (localStorage.getItem('username') !== null) {
+            dispatch(setUserFromLocalStorage());
+            dispatch(setLoggedInLinks());
+        }
+    }, [])
 
     const drawerWidth = 240;
-
-    let links = [
-        'Public projects',
-        'Log in',
-        'Sing up'
-    ];
-    
-    let urls = [
-        '/',
-        '/login',
-        '/register'
-    ];
-
-    if (localStorage.getItem('token') === '') {
-        links = [
-            'Public projects'
-        ];
-
-        urls = [
-            '/'
-        ];
-    }
 
     const drawer = (
         <List>
@@ -64,8 +57,6 @@ const Navbar = () => {
             ))}
         </List>
     );
-
-    console.log(username);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
