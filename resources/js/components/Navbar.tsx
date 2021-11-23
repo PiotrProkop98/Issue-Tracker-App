@@ -78,7 +78,7 @@ const Navbar = () => {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         <Link to="/" className="link">Bug tracker app</Link>
                     </Typography>
-                    { (username !== '') && 
+                    { (localStorage.getItem('username') != null) && 
                         <Typography variant="caption" component="div" sx={{ flexGrow: 1, textAlign: 'right' }}>
                             <Link to="#" className="link" onClick={(e: any) => logoutUser(e)}>
                                 Hello { username }, logout here

@@ -8,7 +8,7 @@ import { useAppDispatch } from '../store';
 import { login } from '../store/user';
 import { setLoggedInLinks } from '../store/links';
 
-import { Box, Container, Typography, Grid, TextField, Button, Alert, LinearProgress } from '@mui/material';
+import { Box, Container, Typography, Grid, TextField, Button, Alert, LinearProgress, CircularProgress } from '@mui/material';
 
 const Login = () => {
     const dispatch = useAppDispatch();
@@ -24,6 +24,7 @@ const Login = () => {
     const [password, setPassword] = useState<string>('');
     const [passwordMessageJsx, setPasswordMessageJsx] = useState<any>(<></>);
     const [disabled, setDisabled] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -31,6 +32,8 @@ const Login = () => {
         if (!isFormValid) {
             return;
         }
+
+        setIsLoading(true);
 
         const data = new FormData(e.currentTarget);
 
@@ -53,6 +56,8 @@ const Login = () => {
 
                         dispatch(login(loginData));
                         dispatch(setLoggedInLinks());
+
+                        setIsLoading(false);
 
                         history.push('/');
                     } else {
@@ -160,6 +165,10 @@ const Login = () => {
         }
     }, [isFormValid]);
 
+    useEffect(() => {
+
+    }, [isLoading]);
+
     return (
         <Container component="main" maxWidth="xs">
             <Box
@@ -170,47 +179,50 @@ const Login = () => {
                     alignItems: 'center',
                 }}
             >
-                <Typography component="h1" variant="h5">
-                    Log in
-                </Typography>
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                id="email"
-                                label="Email Address"
-                                name="email"
-                                autoComplete="email"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEmailChange(e)}
-                            />
+                {(!isLoading) && (<>
+                    <Typography component="h1" variant="h5">
+                        Log in
+                    </Typography>
+                    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    id="email"
+                                    label="Email Address"
+                                    name="email"
+                                    autoComplete="email"
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEmailChange(e)}
+                                />
+                            </Grid>
+                            { emailMessageJsx }
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    name="password"
+                                    label="Password"
+                                    type="password"
+                                    id="password"
+                                    autoComplete="new-password"
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordChange(e)}
+                                />
+                            </Grid>
+                            { passwordMessageJsx }
                         </Grid>
-                        { emailMessageJsx }
-                        <Grid item xs={12}>
-                            <TextField
-                                required
+                        <Button
+                                type="submit"
                                 fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="new-password"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordChange(e)}
-                            />
-                        </Grid>
-                        { passwordMessageJsx }
-                    </Grid>
-                    <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2 }}
-                            disabled={disabled}
-                        >
-                        Sign Up
-                    </Button>
-                </Box>
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                                disabled={disabled}
+                            >
+                            Sign Up
+                        </Button>
+                    </Box>
+                </>)}
+                {isLoading && <CircularProgress sx={{ marginBottom: '20px' }} />}
             </Box>
         </Container>
     );

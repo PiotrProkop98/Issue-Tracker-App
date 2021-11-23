@@ -7,9 +7,9 @@ export const logout = createAsyncThunk(
     'user/logout',
     async () => {
         const token = localStorage.getItem('token');
-        await axios.post(baseUrl + 'logout', {} , { headers: { 'Authorization': `Bearer ${token}` }});
         localStorage.removeItem('username');
         localStorage.removeItem('token');
+        await axios.post(baseUrl + 'logout', {} , { headers: { 'Authorization': `Bearer ${token}` }});
     }
 );
 
