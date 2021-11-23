@@ -45,6 +45,21 @@ const Login = () => {
             password: password
         };
 
+        const invalidCredentialHandler = () => {
+            setIsLoading(false);
+
+            setIsEmailValid(false);
+            setIsPasswordValid(false);
+
+            setEmailMessageJsx(<></>);
+
+            setPasswordMessageJsx(
+                <Grid item xs={12}>
+                    <Alert severity="error">Credential invalid!</Alert>
+                </Grid>
+            );
+        };
+
         axios.get('http://localhost:8100/sanctum/csrf-cookie').then(response => {
             axios.post('http://localhost:8100/api/login', object)
                 .then(response => {
@@ -61,16 +76,10 @@ const Login = () => {
 
                         history.push('/');
                     } else {
-                        setIsEmailValid(false);
-                        setIsPasswordValid(false);
-                        setPasswordMessageJsx(
-                            <Grid item xs={12}>
-                                <Alert severity="error">Credential invalid!</Alert>
-                            </Grid>
-                        );
+                        invalidCredentialHandler();
                     }
                 })
-                .catch(err => console.error(err));
+                .catch(() => invalidCredentialHandler());
         });
     };
 
