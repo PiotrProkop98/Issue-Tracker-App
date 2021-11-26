@@ -19,12 +19,11 @@ const Login = () => {
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
     const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
     const [email, setEmail] = useState<string>('');
-    const [emailMessageJsx, setEmailMessageJsx] = useState<any>(<></>);
     const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false);
     const [password, setPassword] = useState<string>('');
-    const [passwordMessageJsx, setPasswordMessageJsx] = useState<any>(<></>);
     const [disabled, setDisabled] = useState<boolean>(true);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [errorMessageJsx, setErrorMessageJsx] = useState<any>(<></>);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -51,12 +50,10 @@ const Login = () => {
             setIsEmailValid(false);
             setIsPasswordValid(false);
 
-            setEmailMessageJsx(<></>);
-
-            setPasswordMessageJsx(
-                <Grid item xs={12}>
-                    <Alert severity="error">Credential invalid!</Alert>
-                </Grid>
+            setErrorMessageJsx(
+                <Alert severity="error">
+                    Invalid credentials!
+                </Alert>
             );
         };
 
@@ -99,62 +96,26 @@ const Login = () => {
 
         setIsEmailValid(false);
 
-        setEmailMessageJsx(
-            <Grid item xs={12}>
-                <Typography>Checking email...</Typography>
-                <LinearProgress />
-            </Grid>
-        );
-
         const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
         if (!re.test(email.toLowerCase())) {
             setIsEmailValid(false);
-
-            setEmailMessageJsx(
-                <Grid item xs={12}>
-                    <Alert severity="error">Email invalid!</Alert>
-                </Grid>
-            );
-
             return;
         }
 
         setIsEmailValid(true);
-
-        setEmailMessageJsx(
-            <Grid item xs={12}>
-                <Alert severity="success">Email valid!</Alert>
-            </Grid>
-        );
     }, [email]);
 
     useEffect(() => {
         if (password.length === 0) {
             setIsPasswordValid(false);
-            setPasswordMessageJsx(<></>);
         }
         else if (password.length <= 5) {
             setIsPasswordValid(false);
-            setPasswordMessageJsx(
-                <Grid item xs={12}>
-                    <Alert severity="error">Password too short!</Alert>
-                </Grid>
-            );
         } else if (password.length >= 255) {
             setIsPasswordValid(false);
-            setPasswordMessageJsx(
-                <Grid item xs={12}>
-                    <Alert severity="error">Password too long!</Alert>
-                </Grid>
-            );
         } else {
             setIsPasswordValid(true);
-            setPasswordMessageJsx(
-                <Grid item xs={12}>
-                    <Alert severity="success">Password valid!</Alert>
-                </Grid>
-            );
         }
     }, [password]);
 
@@ -205,7 +166,6 @@ const Login = () => {
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEmailChange(e)}
                                 />
                             </Grid>
-                            { emailMessageJsx }
                             <Grid item xs={12}>
                                 <TextField
                                     required
@@ -218,7 +178,7 @@ const Login = () => {
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordChange(e)}
                                 />
                             </Grid>
-                            { passwordMessageJsx }
+                            { errorMessageJsx }
                         </Grid>
                         <Button
                                 type="submit"
