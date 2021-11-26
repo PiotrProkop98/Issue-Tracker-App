@@ -1,8 +1,185 @@
-import { Box, Button, Container, Grid, TextField, Typography } from '@mui/material';
-import React from 'react';
+import { Alert, Box, Button, Container, Grid, LinearProgress, TextField, Typography } from '@mui/material';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Register = () => {
+    const [isFormValid, setIsFormValid] = useState<boolean>(false);
+    const [disabled, setDisabled] = useState<boolean>(true);
+
+    const [name, setName] = useState<string>('');
+    const [isNameValid, setIsNameValid] = useState<boolean>(false);
+
+    const [email, setEmail] = useState<string>('');
+    const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
+
+    const [typing, setTyping] = useState<any>();
+
+    const [password, setPassword] = useState<string>('');
+    const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
+    const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false);
+
+    const [errorEmailValidJsx, setErrorEmailValidJsx] = useState<any>(<></>);
+    const [errorNameValidJsx, setErrorNameValidJsx] = useState<any>(<></>);
+    const [errorPasswordValidJsx, setErrorPasswordValidJsx] = useState<any>(<></>);
+
+
+    const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value);
+    };
+
+    const onEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+    };
+
+    const onPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+    };
+
+    const onPasswordConfirmationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPasswordConfirmation(e.target.value);
+    };
+
+    useEffect(() => {
+        if (name.length == 0) {
+            setIsNameValid(false);
+            return;
+        }
+
+        if (name.length <= 3) {
+            setIsNameValid(false);
+
+            setErrorNameValidJsx(
+                <Alert severity="error">
+                    Username too short!
+                </Alert>
+            );
+        } else if (name.length >= 255) {
+            setIsNameValid(false);
+
+            setErrorNameValidJsx(
+                <Alert severity="error">
+                    Username too long!
+                </Alert>
+            );
+        } else {
+            setIsNameValid(true);
+        }
+    }, [name]);
+
+    useEffect(() => {
+        if (email.length == 0) {
+            setIsEmailValid(false);
+            return;
+        }
+
+        setIsEmailValid(false);
+
+        const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+
+        if (!re.test(email.toLowerCase())) {
+            setIsEmailValid(false);
+
+            setErrorEmailValidJsx(
+                <Alert severity="error">
+                    Email invalid!
+                </Alert>
+            );
+
+            return;
+        }
+
+        setTimeout(() => {
+            setErrorEmailValidJsx(
+                <>
+                    <Typography>Checking email...</Typography>
+                    <LinearProgress />
+                </>
+            );
+
+            const invalidCredentialHandler = () => {
+                setIsEmailValid(false);
+
+                setErrorEmailValidJsx(
+                    <Alert severity="error">
+                        Email already taken!
+                    </Alert>
+                )
+            };
+
+            axios.post('http://localhost:8100/api/user/is-email-taken', { email: email })
+                .then(response => {
+                    if (!response.data.taken) {
+                        setIsEmailValid(true);
+                    } else {
+                        invalidCredentialHandler();
+                    }
+                })
+                .catch(() => invalidCredentialHandler());
+        }, 500);
+    }, [email]);
+
+    useEffect(() => {
+        if (password.length == 0 || passwordConfirmation.length == 0) {
+            setIsPasswordValid(false);
+            return;
+        }
+
+        if (password !== passwordConfirmation) {
+            setIsPasswordValid(false);
+
+            setErrorPasswordValidJsx(
+                <Alert severity="error">
+                    Passwords does not match!
+                </Alert>
+            );
+
+            return;
+        }
+
+        if (password.length < 6) {
+            setIsPasswordValid(false);
+
+            setErrorPasswordValidJsx(
+                <Alert severity="error">
+                    Password too short!
+                </Alert>
+            );
+
+            return;
+        }
+
+        if (password.length > 255) {
+            setIsPasswordValid(false);
+
+            setErrorPasswordValidJsx(
+                <Alert severity="error">
+                    Password too long!
+                </Alert>
+            );
+
+            return;
+        }
+
+        setIsPasswordValid(true);
+    }, [password, passwordConfirmation])
+
+    useEffect(() => {
+        if (isNameValid && isEmailValid && isPasswordValid) {
+            setIsFormValid(true);
+        } else {
+            setIsFormValid(false);
+        }
+    }, [isNameValid, isEmailValid, isPasswordValid]);
+
+    useEffect(() => {
+        if (!isFormValid) {
+            setDisabled(true);
+        } else {
+            setDisabled(false);
+        }
+    }, [isFormValid]);
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -34,8 +211,14 @@ const Register = () => {
                                 fullWidth
                                 id="name"
                                 label="Full Name"
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onNameChange(e)}
                             />
                         </Grid>
+                        {!(isNameValid) &&
+                            <Grid item xs={12}>
+                                { errorNameValidJsx }
+                            </Grid>
+                        }
                         <Grid item xs={12}>
                             <TextField
                                 required
@@ -44,8 +227,14 @@ const Register = () => {
                                 label="Email address"
                                 name="email"
                                 autoComplete="email"
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEmailChange(e)}
                             />
                         </Grid>
+                        {!(isEmailValid) &&
+                            <Grid item xs={12}>
+                                { errorEmailValidJsx }
+                            </Grid>
+                        }
                         <Grid item xs={12}>
                             <TextField
                                 required
@@ -55,8 +244,14 @@ const Register = () => {
                                 type="password"
                                 id="password"
                                 autoComplete="new-password"
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordChange(e)}
                             />
                         </Grid>
+                        {!(isPasswordValid) &&
+                            <Grid item xs={12}>
+                                { errorPasswordValidJsx }
+                            </Grid>
+                        }
                         <Grid item xs={12}>
                             <TextField
                                 required
@@ -66,6 +261,7 @@ const Register = () => {
                                 type="password"
                                 id="password-confirmation"
                                 autoComplete="new-password"
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordConfirmationChange(e)}
                             />
                         </Grid>
                     </Grid>
@@ -74,6 +270,7 @@ const Register = () => {
                         fullWidth
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
+                        disabled={disabled}
                     >
                         Sign Up
                     </Button>

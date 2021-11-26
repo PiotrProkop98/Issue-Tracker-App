@@ -135,10 +135,6 @@ const Login = () => {
         }
     }, [isFormValid]);
 
-    useEffect(() => {
-
-    }, [isLoading]);
-
     return (
         <Container component="main" maxWidth="xs">
             <Box
