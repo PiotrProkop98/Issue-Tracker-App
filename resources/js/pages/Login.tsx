@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import { useAppDispatch } from '../store';
@@ -36,12 +35,9 @@ const Login = () => {
 
         const data = new FormData(e.currentTarget);
 
-        const email = data.get('email');
-        const password = data.get('password');
-
         const object = {
-            email: email,
-            password: password
+            email: data.get('email'),
+            password: data.get('password')
         };
 
         const invalidCredentialHandler = () => {
@@ -51,13 +47,15 @@ const Login = () => {
             setIsPasswordValid(false);
 
             setErrorMessageJsx(
-                <Alert severity="error">
-                    Invalid credentials!
-                </Alert>
+                <Grid item xs={12}>
+                    <Alert severity="error">
+                        Invalid credentials!
+                    </Alert>
+                </Grid>
             );
         };
 
-        axios.get('http://localhost:8100/sanctum/csrf-cookie').then(response => {
+        axios.get('http://localhost:8100/sanctum/csrf-cookie').then(() => {
             axios.post('http://localhost:8100/api/login', object)
                 .then(response => {
                     if (response.status === 200) {
@@ -87,6 +85,12 @@ const Login = () => {
     const onPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
     };
+
+    useEffect(() => {
+        if (localStorage.getItem('username') !== null) {
+            history.push('/');
+        }
+    }, []);
 
     useEffect(() => {
         if (initialPageLoading) {
@@ -142,7 +146,7 @@ const Login = () => {
                     marginTop: 8,
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center',
+                    alignItems: 'center'
                 }}
             >
                 {(!isLoading) && (<>

@@ -1,11 +1,20 @@
-import { Alert, Box, Button, Container, Grid, LinearProgress, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Container, Grid, LinearProgress, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+import { useAppDispatch } from '../store';
+import { login } from '../store/user';
+import { setLoggedInLinks } from '../store/links';
 
 const Register = () => {
+    const dispatch = useAppDispatch();
+
+    const history = useHistory();
+
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
     const [disabled, setDisabled] = useState<boolean>(true);
+
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [name, setName] = useState<string>('');
     const [isNameValid, setIsNameValid] = useState<boolean>(false);
@@ -13,15 +22,71 @@ const Register = () => {
     const [email, setEmail] = useState<string>('');
     const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
 
-    const [typing, setTyping] = useState<any>();
-
     const [password, setPassword] = useState<string>('');
     const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
     const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false);
 
-    const [errorEmailValidJsx, setErrorEmailValidJsx] = useState<any>(<></>);
     const [errorNameValidJsx, setErrorNameValidJsx] = useState<any>(<></>);
+    const [errorEmailValidJsx, setErrorEmailValidJsx] = useState<any>(<></>);
     const [errorPasswordValidJsx, setErrorPasswordValidJsx] = useState<any>(<></>);
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (!isFormValid) {
+            return;
+        }
+
+        setIsLoading(true);
+
+        const data = new FormData(e.currentTarget);
+
+        const object = {
+            name: data.get('name'),
+            email: data.get('email'),
+            password: data.get('password'),
+            password_confirmation: data.get('password_confirmation')
+        };
+
+        const invalidCredentialHandler = () => {
+            setIsLoading(false);
+
+            setIsNameValid(false);
+            setIsEmailValid(false);
+            setIsPasswordValid(false);
+
+            setErrorNameValidJsx(<></>);
+            setErrorEmailValidJsx(<></>);
+
+            setErrorPasswordValidJsx(
+                <Alert severity="error">
+                    Invalid credentials!
+                </Alert>
+            );
+        };
+
+        axios.get('http://localhost:8100/sanctum/csrf-cookie').then(() => {
+            axios.post('http://localhost:8100/api/register', object)
+                .then(response => {
+                    if (response.status === 201) {
+                        const loginData = {
+                            username: response.data.name,
+                            token: response.data.token
+                        };
+
+                        dispatch(login(loginData));
+                        dispatch(setLoggedInLinks());
+                        
+                        setIsLoading(false);
+
+                        history.push('/');
+                    } else {
+                        invalidCredentialHandler();
+                    }
+                })
+                .catch(() => invalidCredentialHandler());
+        });
+    };
 
 
     const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +104,12 @@ const Register = () => {
     const onPasswordConfirmationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPasswordConfirmation(e.target.value);
     };
+
+    useEffect(() => {
+        if (localStorage.getItem('username') !== null) {
+            history.push('/');
+        }
+    }, []);
 
     useEffect(() => {
         if (name.length == 0) {
@@ -180,109 +251,115 @@ const Register = () => {
         }
     }, [isFormValid]);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        const data = new FormData(e.currentTarget);
-
-        console.log(data.get('name'), data.get('email'), data.get('password'), data.get('password_confirmation'));
-    };
-
     return (
-        <Container component="main" maxWidth="xs">
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <Typography component="h1" variant="h5">
-                    Sign up
-                </Typography>
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                                autoComplete="given-name"
-                                name="name"
-                                required
-                                fullWidth
-                                id="name"
-                                label="Full Name"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onNameChange(e)}
-                            />
-                        </Grid>
-                        {!(isNameValid) &&
-                            <Grid item xs={12}>
-                                { errorNameValidJsx }
-                            </Grid>
-                        }
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                id="email"
-                                label="Email address"
-                                name="email"
-                                autoComplete="email"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEmailChange(e)}
-                            />
-                        </Grid>
-                        {!(isEmailValid) &&
-                            <Grid item xs={12}>
-                                { errorEmailValidJsx }
-                            </Grid>
-                        }
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="new-password"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordChange(e)}
-                            />
-                        </Grid>
-                        {!(isPasswordValid) &&
-                            <Grid item xs={12}>
-                                { errorPasswordValidJsx }
-                            </Grid>
-                        }
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                name="password_confirmation"
-                                label="Confirm password"
-                                type="password"
-                                id="password-confirmation"
-                                autoComplete="new-password"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordConfirmationChange(e)}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                        disabled={disabled}
+        <>
+            {!(isLoading) && (
+                <Container component="main" maxWidth="xs">
+                    <Box
+                        sx={{
+                            marginTop: 8,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
                     >
-                        Sign Up
-                    </Button>
-                </Box>
-            </Box>
-            <Typography variant="body2" align="center" sx={{ marginTop: "15px" }}>
-                <Link to="/login" className="link-colored">
-                    Already have an account? Sign in
-                </Link>
-            </Typography>
-        </Container>
-    );
+                        <Typography component="h1" variant="h5">
+                            Sign up
+                        </Typography>
+                        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        autoComplete="given-name"
+                                        name="name"
+                                        required
+                                        fullWidth
+                                        id="name"
+                                        label="Full Name"
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onNameChange(e)}
+                                    />
+                                </Grid>
+                                {!(isNameValid) &&
+                                    <Grid item xs={12}>
+                                        { errorNameValidJsx }
+                                    </Grid>
+                                }
+                                <Grid item xs={12}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        id="email"
+                                        label="Email address"
+                                        name="email"
+                                        autoComplete="email"
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEmailChange(e)}
+                                    />
+                                </Grid>
+                                {!(isEmailValid) &&
+                                    <Grid item xs={12}>
+                                        { errorEmailValidJsx }
+                                    </Grid>
+                                }
+                                <Grid item xs={12}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        name="password"
+                                        label="Password"
+                                        type="password"
+                                        id="password"
+                                        autoComplete="new-password"
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordChange(e)}
+                                    />
+                                </Grid>
+                                {!(isPasswordValid) &&
+                                    <Grid item xs={12}>
+                                        { errorPasswordValidJsx }
+                                    </Grid>
+                                }
+                                <Grid item xs={12}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        name="password_confirmation"
+                                        label="Confirm password"
+                                        type="password"
+                                        id="password-confirmation"
+                                        autoComplete="new-password"
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPasswordConfirmationChange(e)}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                                disabled={disabled}
+                            >
+                                Sign Up
+                            </Button>
+                        </Box>
+                    </Box>
+                    <Typography variant="body2" align="center" sx={{ marginTop: "15px" }}>
+                        <Link to="/login" className="link-colored">
+                            Already have an account? Sign in
+                        </Link>
+                    </Typography>
+                </Container>
+            )}
+            { isLoading && (
+                <Container component="main" maxWidth="xs">
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                    }}>
+                        <CircularProgress sx={{ marginBottom: '20px' }} />
+                    </Box>
+                </Container>
+            )}
+    </>);
 };
 
 export default Register;
