@@ -30,11 +30,13 @@ const linksSlice = createSlice({
         },
         setLoggedInLinks: state => {
             state.links = [
-                'Public projects'
+                'Public projects',
+                'Dashboard'
             ];
 
             state.urls = [
-                '/'
+                '/',
+                '/Dashboard'
             ];
         }
     }

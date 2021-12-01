@@ -13,6 +13,8 @@ import Register from '../pages/Register'
 import Navbar from './Navbar';
 import Footer from './Footer';
 import Issue from '../pages/Issue';
+import Dashboard from '../pages/Dashboard';
+import AddNewProject from '../pages/AddNewProject';
 
 const App = () => {
     return (
@@ -24,9 +26,11 @@ const App = () => {
                 <Box sx={{ marginTop: '100px' }}>
                     <Switch>
                         <Route exact path="/" component={AllProjects} />
-                        <Route path="/your-projects" component={YourProjects} />
                         <Route path="/login" component={Login} />
                         <Route path="/register" component={Register} />
+                        <Route path="/dashboard" component={Dashboard} />
+                        <Route path="/add-new-project" component={AddNewProject} />
+                        <Route path="/your-projects" component={YourProjects} />
                         <Route path="/project/:id" children={<Project />} />
                         <Route path="/issue/:id" children={<Issue />} />
                     </Switch>
