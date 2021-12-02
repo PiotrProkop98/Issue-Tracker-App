@@ -45,4 +45,93 @@ class ProjectController extends Controller
 
         return response()->json($projects, 200);
     }
+
+    public function create(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid project name!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'description' => 'required|string'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid project description!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'developer_company_name' => 'required|string'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid Developer company name!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'client_company_name' => 'required|string'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid Client company name!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'is_private' => 'required|boolean'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid project data!'
+            ], 400);
+        }
+
+        $project_exists = Project::where('name', '=', $request->all()['name'])->first();
+
+        if ($project_exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Project name already taken!'
+            ], 400);
+        }
+
+        $project = Project::create([
+            'name' => $request->all()['name'],
+            'description' => $request->all()['description'],
+            'developer_company_name' => $request->all()['developer_company_name'],
+            'client_company_name' => $request->all()['client_company_name'],
+            'is_private' => $request->all()['is_private']
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'name' => $request->all()['name'],
+            'description' => $request->all()['description'],
+            'developer_company_name' => $request->all()['developer_company_name'],
+            'client_company_name' => $request->all()['client_company_name'],
+            'is_private' => $request->all()['is_private']
+        ], 201);
+    }
 }

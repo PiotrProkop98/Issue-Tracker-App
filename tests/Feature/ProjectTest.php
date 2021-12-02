@@ -143,4 +143,120 @@ class ProjectTest extends TestCase
                 'message' => '404 Not Found.'
             ]);
     }
+
+    public function test_create_project_success()
+    {
+        $json_object = [
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'success' => true,
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ];
+
+        $response = $this->json('POST', '/api/projects/create', $json_object);
+
+        $response
+            ->assertStatus(201)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_create_project_invalid_name()
+    {
+        $json_object = [
+            'name' => '',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid project name!'
+        ];
+
+        $response = $this->json('POST', '/api/projects/create', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_create_project_invalid_description()
+    {
+        $json_object = [
+            'name' => 'Test project.',
+            'description' => '',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid project description!'
+        ];
+
+        $response = $this->json('POST', '/api/projects/create', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_create_project_invalid_is_private()
+    {
+        $json_object = [
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => 123
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid project data!'
+        ];
+
+        $response = $this->json('POST', '/api/projects/create', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_create_project_name_already_taken()
+    {
+        $json_object = [
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Project name already taken!'
+        ];
+
+        Project::create($json_object);
+
+        $response = $this->json('POST', '/api/projects/create', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonFragment($expected_json_data);
+    }
 }
