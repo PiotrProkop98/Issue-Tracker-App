@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Hash;
+use Laravel\Sanctum\Sanctum;
 
 use App\Models\User;
 
@@ -232,30 +233,6 @@ class UserTest extends TestCase
             ->assertJson($expected_json_data);
     }
 
-    public function test_logout()
-    {
-        $json_object = [
-            'email' => 'piotr1@gmail.com',
-            'password' => '123456'
-        ];
-
-        $expected_json_data = [
-            'success' => true
-        ];
-
-        User::create([
-            'email' => 'piotr1@gmail.com',
-            'name' => 'Piotr Prokop',
-            'password' => Hash::make('123456')
-        ]);
-
-        $response = $this->json('POST', '/api/login', $json_object);
-
-        $response
-            ->assertStatus(200)
-            ->assertJson($expected_json_data);
-    }
-
     public function test_is_email_taken_returns_true()
     {
         User::create([
@@ -299,6 +276,74 @@ class UserTest extends TestCase
 
         $response
             ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_get_user_personal_data_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop',
+            'password' => Hash::make('123456')
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $expected_json_data = [
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop'
+        ];
+
+        $response = $this->json('GET', '/api/user/get-personal-data/' . $user->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_get_user_personal_data_user_not_log_in()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop',
+            'password' => Hash::make('123456')
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('GET', '/api/user/get-personal-data/' . $user->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_get_user_personal_data_wrong_user_id()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user2 = User::create([
+            'email' => 'piotr2@gmail.com',
+            'name' => 'Piotr Prokop 2',
+            'password' => Hash::make('123456')
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/get-personal-data/' . $user2->id);
+
+        $response
+            ->assertStatus(401)
             ->assertJson($expected_json_data);
     }
 }

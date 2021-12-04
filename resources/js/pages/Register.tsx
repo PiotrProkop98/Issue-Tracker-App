@@ -70,6 +70,7 @@ const Register = () => {
                 .then(response => {
                     if (response.status === 201) {
                         const loginData = {
+                            id: response.data.id,
                             username: response.data.name,
                             token: response.data.token
                         };

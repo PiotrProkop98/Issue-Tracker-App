@@ -38,6 +38,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
+            'id' => $user->id,
             'email' => $request->all()['email'],
             'name' => $user->name,
             'token' => $token->plainTextToken
@@ -79,6 +80,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
+            'id' => $user->id,
             'email' => $request->all()['email'],
             'name' => $request->all()['name'],
             'token' => $token->plainTextToken
@@ -96,5 +98,29 @@ class UserController extends Controller
         }
 
         return response()->json(['taken' => false], 200);
+    }
+
+    public function getPersonalData(Request $request, $id)
+    {
+        $user = User::where('id', '=', $id)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $user_logged_in = $request->user();
+
+        if ($user_logged_in->id != $user->id) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        return response()->json([
+            'email' => $user_logged_in->email,
+            'name' => $user_logged_in->name
+        ], 200);
     }
 }

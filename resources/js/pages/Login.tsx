@@ -60,6 +60,7 @@ const Login = () => {
                 .then(response => {
                     if (response.status === 200) {
                         const loginData = {
+                            id: response.data.id,
                             username: response.data.name,
                             token: response.data.token
                         };
