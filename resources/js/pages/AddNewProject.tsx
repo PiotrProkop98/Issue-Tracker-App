@@ -76,6 +76,8 @@ const AddNewProject = () => {
                             <TextField
                                 required
                                 fullWidth
+                                multiline
+                                rows={4}
                                 id="description"
                                 label="Project description"
                                 name="description"
