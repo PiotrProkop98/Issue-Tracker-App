@@ -3,10 +3,6 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-interface ParamTypes {
-    id: string
-};
-
 interface IssueData {
     id: number,
     project_id: number,
@@ -19,7 +15,7 @@ interface IssueData {
 };
 
 const Issue = () => {
-    const { id } = useParams<ParamTypes>();
+    const { id } = useParams<string>();
     
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [issue, setIssue] = useState<IssueData>();

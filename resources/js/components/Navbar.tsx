@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../store';
@@ -12,7 +12,7 @@ import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { username } = useSelector((state: RootState) => state.userSlice);
     const { links, urls } = useSelector((state: RootState) => state.linksSlice);
@@ -29,7 +29,7 @@ const Navbar = () => {
         dispatch(logout());
         dispatch(setLoggedOutLinks());
 
-        history.push('/');
+        navigate('/');
     }
 
     useEffect(() => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useAppDispatch } from '../store';
 import { login } from '../store/user';
@@ -12,7 +12,7 @@ import { Box, Container, Typography, Grid, TextField, Button, Alert, LinearProgr
 const Login = () => {
     const dispatch = useAppDispatch();
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [initialPageLoading, setInitialPageLoading] = useState<boolean>(true);
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
@@ -70,7 +70,7 @@ const Login = () => {
 
                         setIsLoading(false);
 
-                        history.push('/');
+                        navigate('/');
                     } else {
                         invalidCredentialHandler();
                     }
@@ -89,7 +89,7 @@ const Login = () => {
 
     useEffect(() => {
         if (localStorage.getItem('username') !== null) {
-            history.push('/');
+            navigate('/');
         }
     }, []);
 

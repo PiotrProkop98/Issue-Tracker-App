@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useAppDispatch } from '../store';
 
@@ -28,6 +28,8 @@ interface Project {
 }
 
 const AllProjects = () => {
+    const navigate = useNavigate();
+
     const dispatch = useAppDispatch();
     const { projects, last_page, loaded, current_page } = useSelector((state: RootState) => state.projectSlice);
 
@@ -37,8 +39,6 @@ const AllProjects = () => {
     const [prevButtonJsx, setPrevButtonJsx] = useState<any>();
     const [nextButtonJsx, setNextButtonJsx] = useState<any>();
     const [pageButtonsJsx, setPageButtonsJsx] = useState<any>();
-
-    const history = useHistory();
 
     useEffect(() => {
         if (loaded) {
@@ -98,7 +98,7 @@ const AllProjects = () => {
                                             variant="contained"
                                             size="small"
                                             sx={{ marginTop: '25px' }}
-                                            onClick={() => history.push(`/project/${project.id}`)}
+                                            onClick={() => navigate(`/project/${project.id}`)}
                                         >
                                             See More
                                         </Button>

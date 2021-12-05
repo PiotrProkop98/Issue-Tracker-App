@@ -15,10 +15,6 @@ import {
     Typography
 } from '@mui/material';
 
-interface ParamTypes {
-    id: string
-}
-
 interface ProjectData {
     id: number,
     name: string,
@@ -42,7 +38,7 @@ interface IssueData {
 }
 
 const Project = () => {
-    const { id } = useParams<ParamTypes>();
+    const { id } = useParams<string>();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [project, setProject] = useState<ProjectData>();

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Box, Button, Checkbox, Container, FormControlLabel, Grid, TextField, Typography } from '@mui/material';
 
 const AddNewProject = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [name, setName] = useState<string>('');
     const [description, setDescription] = useState<string>('');
@@ -39,7 +39,7 @@ const AddNewProject = () => {
 
     useEffect(() => {
         if (localStorage.getItem('username') === null) {
-            history.push('/');
+            navigate('/');
         }
     }, []);
 

@@ -1,7 +1,7 @@
 import { Alert, Box, Button, CircularProgress, Container, Grid, LinearProgress, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../store';
 import { login } from '../store/user';
 import { setLoggedInLinks } from '../store/links';
@@ -9,7 +9,7 @@ import { setLoggedInLinks } from '../store/links';
 const Register = () => {
     const dispatch = useAppDispatch();
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
     const [disabled, setDisabled] = useState<boolean>(true);
@@ -80,7 +80,7 @@ const Register = () => {
                         
                         setIsLoading(false);
 
-                        history.push('/');
+                        navigate('/');
                     } else {
                         invalidCredentialHandler();
                     }
@@ -108,7 +108,7 @@ const Register = () => {
 
     useEffect(() => {
         if (localStorage.getItem('username') !== null) {
-            history.push('/');
+            navigate('/');
         }
     }, []);
 

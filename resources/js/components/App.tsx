@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { CssBaseline, Box } from '@mui/material';
 
 import store from '../store';
@@ -24,16 +24,16 @@ const App = () => {
                 <Navbar />
 
                 <Box sx={{ marginTop: '100px' }}>
-                    <Switch>
-                        <Route exact path="/" component={AllProjects} />
-                        <Route path="/login" component={Login} />
-                        <Route path="/register" component={Register} />
-                        <Route path="/dashboard" component={Dashboard} />
-                        <Route path="/add-new-project" component={AddNewProject} />
-                        <Route path="/your-projects" component={YourProjects} />
-                        <Route path="/project/:id" children={<Project />} />
-                        <Route path="/issue/:id" children={<Issue />} />
-                    </Switch>
+                    <Routes>
+                        <Route path="/" element={<AllProjects />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/add-new-project" element={<AddNewProject />} />
+                        <Route path="/your-projects" element={<YourProjects />} />
+                        <Route path="/project/:id" element={<Project />} />
+                        <Route path="/issue/:id" element={<Issue />} />
+                    </Routes>
                 </Box>
 
                 <Footer />

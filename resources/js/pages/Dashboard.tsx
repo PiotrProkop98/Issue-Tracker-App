@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { Button, Card, CardActions, CardContent, CircularProgress, Container, Typography } from '@mui/material';
 import axios from 'axios';
 
 const Dashboard = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { username, token, id } = useSelector((state: RootState) => state.userSlice);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleAddNewProjectClick = () => {
-        history.push('/add-new-project');
+        navigate('/add-new-project');
     };
 
     useEffect(() => {
         if (localStorage.getItem('username') === null) {
-            history.push('/');
+            navigate('/');
         }
 
         setIsLoading(true);
