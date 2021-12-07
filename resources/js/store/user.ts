@@ -37,6 +37,10 @@ const userSlice = createSlice({
             localStorage.setItem('id', String(action.payload.id));
             localStorage.setItem('username', action.payload.username);
             localStorage.setItem('token', action.payload.token);
+        },
+        setUsername: (state, action) => {
+            state.username = action.payload.username;
+            localStorage.setItem('username', action.payload.username);
         }
     },
     extraReducers: builder => {
@@ -49,6 +53,6 @@ const userSlice = createSlice({
     }
 });
 
-export const { setUserFromLocalStorage, login } = userSlice.actions;
+export const { setUserFromLocalStorage, login, setUsername } = userSlice.actions;
 
 export default userSlice.reducer;

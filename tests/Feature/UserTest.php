@@ -346,4 +346,141 @@ class UserTest extends TestCase
             ->assertStatus(401)
             ->assertJson($expected_json_data);
     }
+
+    public function test_change_name_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id,
+            'name' => 'New valid name'
+        ];
+
+        $expected_json_data = [
+            'success' => true,
+            'name' => $json_object['name']
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/user/change-name', $json_object);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_name_invalid_name()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id,
+            'name' => 'a'
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid username!'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/user/change-name', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_name_user_not_log_in()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id,
+            'name' => 'New valid name'
+        ];
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('POST', '/api/user/change-name', $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_name_user_does_not_exists()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id + 1,
+            'name' => 'New valid name'
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid request!'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/user/change-name', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_name_wrong_user_id()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user2 = User::create([
+            'email' => 'piotr2@gmail.com',
+            'name' => 'Piotr Prokop 2',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user2->id,
+            'name' => 'New valid name'
+        ];
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('POST', '/api/user/change-name', $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJson($expected_json_data);
+    }
 }
