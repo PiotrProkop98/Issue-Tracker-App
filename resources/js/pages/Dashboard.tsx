@@ -95,6 +95,7 @@ const Dashboard = () => {
                         
                         <Input
                             inputText={username}
+                            label="New Username"
                             isInputLoading={isUsernameLoading}
                             inputAlertJsx={usernameAlertJsx}
                             setNewInput={setNewUsername}

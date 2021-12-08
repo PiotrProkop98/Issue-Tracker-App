@@ -12,6 +12,7 @@ interface Ref {
 
 interface Props {
     inputText: string,
+    label: string,
     isInputLoading: boolean,
     inputAlertJsx: any,
     setNewInput: any,
@@ -45,7 +46,7 @@ const Input = (props: Props) => {
             {(showInput && !(props.isInputLoading) && (
                 <Box ref={ref} sx={{ display: 'inline' }}>
                     <TextField
-                        label="New username"
+                        label={props.label}
                         variant="standard"
                         size="small"
                         sx={{
