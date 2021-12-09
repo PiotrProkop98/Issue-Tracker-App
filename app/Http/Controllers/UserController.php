@@ -164,4 +164,45 @@ class UserController extends Controller
             'name' => $request->all()['name']
         ], 200);
     }
+
+    public function changeEmail(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email|unique:users',
+                'id' => 'required'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid email!'
+            ], 400);
+        }
+
+        $user = User::where('id', '=', $request->all()['id'])->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request!'
+            ], 400);
+        }
+
+        $user_logged_in = $request->user();
+
+        if ($user_logged_in->id != $user->id) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $user->email = $request->all()['email'];
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'email' => $request->all()['email']
+        ], 200);
+    }
 }
