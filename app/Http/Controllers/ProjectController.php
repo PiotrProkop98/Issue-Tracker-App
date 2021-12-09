@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\Project;
+use App\Models\User;
 use App\Models\ProjectUser;
 
 class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $projects = Project::orderBy('created_at')
+        $projects = Project::orderBy('created_at', 'DESC')
             ->where('is_private', '=', '0')
             ->paginate(10);
 
@@ -127,11 +128,56 @@ class ProjectController extends Controller
 
         return response()->json([
             'success' => true,
+            'id' => $project->id,
             'name' => $request->all()['name'],
             'description' => $request->all()['description'],
             'developer_company_name' => $request->all()['developer_company_name'],
             'client_company_name' => $request->all()['client_company_name'],
             'is_private' => $request->all()['is_private']
+        ], 201);
+    }
+
+    public function makeUserLeader(Request $request)
+    {
+        try {
+            $request->validate([
+                'user_id' => 'required|integer',
+                'project_id' => 'required|integer'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request!'
+            ], 400);
+        }
+
+        $user = User::where('id', '=', $request->all()['user_id'])->first();
+        $project = Project::where('id', '=', $request->all()['project_id'])->first();
+
+        if (!$user || !$project) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request!'
+            ], 400);
+        }
+
+        $user_logged_in = $request->user();
+
+        if ($user_logged_in->id != $user->id) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $project_user = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $request->all()['user_id'],
+            'project_id' => $request->all()['project_id']
+        ]);
+
+        return response()->json([
+            'success' => true
         ], 201);
     }
 }

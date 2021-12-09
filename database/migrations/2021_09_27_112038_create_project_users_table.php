@@ -20,6 +20,7 @@ class CreateProjectUsersTable extends Migration
             $table->string('role', 255)->default('Developer');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('set null');
+            $table->timestamps();
         });
     }
 

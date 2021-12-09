@@ -35,7 +35,8 @@ Route::post('/user/change-password', [UserController::class, 'changePassword'])-
 Route::get('/projects', [ProjectController::class, 'index']);
 Route::get('/projects/projects-user-belongs-to-only', [ProjectController::class, 'projects_user_belongs_to_only'])->middleware('auth:sanctum');
 Route::get('/projects/{id}', [ProjectController::class, 'view']);
-Route::post('/projects/create', [ProjectController::class, 'create']);
+Route::post('/projects/create', [ProjectController::class, 'create'])->middleware('auth:sanctum');
+Route::post('/project/create/make-user-leader', [ProjectController::class, 'makeUserLeader'])->middleware('auth:sanctum');
 
 Route::get('/issues/{project_id}', [IssueController::class, 'all']);
 Route::get('/issue/{issue_id}', [IssueController::class, 'show']);

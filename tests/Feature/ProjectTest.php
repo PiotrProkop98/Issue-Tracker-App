@@ -163,6 +163,14 @@ class ProjectTest extends TestCase
             'is_private' => false
         ];
 
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        Sanctum::actingAs($user);
+
         $response = $this->json('POST', '/api/projects/create', $json_object);
 
         $response
@@ -184,6 +192,14 @@ class ProjectTest extends TestCase
             'success' => false,
             'message' => 'Invalid project name!'
         ];
+
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        Sanctum::actingAs($user);
 
         $response = $this->json('POST', '/api/projects/create', $json_object);
 
@@ -207,6 +223,14 @@ class ProjectTest extends TestCase
             'message' => 'Invalid project description!'
         ];
 
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        Sanctum::actingAs($user);
+
         $response = $this->json('POST', '/api/projects/create', $json_object);
 
         $response
@@ -228,6 +252,14 @@ class ProjectTest extends TestCase
             'success' => false,
             'message' => 'Invalid project data!'
         ];
+
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        Sanctum::actingAs($user);
 
         $response = $this->json('POST', '/api/projects/create', $json_object);
 
@@ -251,9 +283,174 @@ class ProjectTest extends TestCase
             'message' => 'Project name already taken!'
         ];
 
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        Sanctum::actingAs($user);
+
         Project::create($json_object);
 
         $response = $this->json('POST', '/api/projects/create', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_create_project_user_not_logged_in()
+    {
+        $json_object = [
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('POST', '/api/projects/create', $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_make_user_leader_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $json_object = [
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ];
+
+        $expected_json_data = [
+            'success' => true
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/project/create/make-user-leader', $json_object);
+
+        $response
+            ->assertStatus(201)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_make_user_leader_invalid_id()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $json_object = [
+            'user_id' => $user->id,
+            'project_id' => 'string'
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid request!'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/project/create/make-user-leader', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_make_user_leader_user_not_logged_in()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $json_object = [
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ];
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('POST', '/api/project/create/make-user-leader', $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_make_user_leader_user_does_not_exists()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $json_object = [
+            'user_id' => $user->id + 1,
+            'project_id' => $project->id
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid request!'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/project/create/make-user-leader', $json_object);
 
         $response
             ->assertStatus(400)

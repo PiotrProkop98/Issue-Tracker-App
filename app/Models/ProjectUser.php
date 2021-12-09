@@ -10,4 +10,10 @@ class ProjectUser extends Model
     use HasFactory;
 
     protected $table = 'project_users';
+
+    protected $fillable = [
+        'role',
+        'user_id',
+        'project_id'
+    ];
 }
