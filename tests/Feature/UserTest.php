@@ -626,4 +626,174 @@ class UserTest extends TestCase
             ->assertStatus(400)
             ->assertJson($expected_json_data);
     }
+
+    public function test_change_password_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id,
+            'new_password' => 'newpassword123',
+            'old_password' => '123456'
+        ];
+
+        $expected_json_data = [
+            'success' => true,
+            'new_password' => $json_object['new_password']
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/user/change-password', $json_object);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_password_user_not_logged_in()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id,
+            'new_password' => 'newpassword123',
+            'old_password' => '123456'
+        ];
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('POST', '/api/user/change-password', $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_password_user_does_not_exists()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id + 1,
+            'new_password' => 'newpassword123',
+            'old_password' => '123456'
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid old password!'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/user/change-password', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_password_wrong_user_id()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user2 = User::create([
+            'email' => 'piotr2@gmail.com',
+            'name' => 'Piotr Prokop 2',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user2->id,
+            'new_password' => 'newpassword123',
+            'old_password' => '123456'
+        ];
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('POST', '/api/user/change-password', $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_password_wrong_old_password()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id,
+            'new_password' => 'newpassword123',
+            'old_password' => 'wrongpassword123'
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid old password!'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/user/change-password', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_change_password_invalid_new_password()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'id' => $user->id,
+            'new_password' => 'a',
+            'old_password' => '123456'
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Invalid new password!'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/user/change-password', $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson($expected_json_data);
+    }
 }

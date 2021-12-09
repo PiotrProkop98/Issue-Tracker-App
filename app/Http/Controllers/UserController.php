@@ -205,4 +205,68 @@ class UserController extends Controller
             'email' => $request->all()['email']
         ], 200);
     }
+
+    public function changePassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'id' => 'required'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'new_password' => 'required|min:5|max:255'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid new password!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'old_password' => 'required|min:5|max:255'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid old password!'
+            ], 400);
+        }
+
+        $user = User::where('id', '=', $request->all()['id'])->first();
+
+        if (!$user || !Hash::check($request->all()['old_password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid old password!'
+            ], 400);
+        }
+
+        $user_logged_in = $request->user();
+
+        if ($user_logged_in->id != $user->id) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $user->password = Hash::make($request->all()['new_password']);
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'new_password' => $request->all()['new_password']
+        ], 200);
+    }
 }
