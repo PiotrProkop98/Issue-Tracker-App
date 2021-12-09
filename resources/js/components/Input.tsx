@@ -1,10 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-import { setUsername } from '../store/user';
-import { useAppDispatch } from '../store';
-import axios from 'axios';
+import { Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
 
 interface Ref {
     contains: any

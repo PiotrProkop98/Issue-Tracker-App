@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../store';
 import { setUsername, setEmail } from '../store/user';
-import { Alert, Box, Button, Card, CardActions, CardContent, CircularProgress, Container, TextField, Typography } from '@mui/material';
+import { Alert, Button, Card, CardActions, CardContent, CircularProgress, Container, Typography } from '@mui/material';
 import axios from 'axios';
 import Input from '../components/Input';
+import PasswordInput from '../components/PasswordInput';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -22,6 +23,11 @@ const Dashboard = () => {
     const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
     const [emailAlertJsx, setEmailAlertJsx] = useState<any>(<></>);
     const [newEmail, setNewEmail] = useState<string>('');
+
+    const [isPasswordLoading, setIsPasswordLoading] = useState<boolean>(false);
+    const [passwordAlertJsx, setPasswordAlertJsx] = useState<any>(<></>);
+    const [oldPassword, setOldPassword] = useState<string>('');
+    const [newPassword, setNewPassword] = useState<string>('');
 
     useEffect(() => {
         if (localStorage.getItem('username') === null) {
@@ -102,6 +108,34 @@ const Dashboard = () => {
             .catch(() => handleResponseError());
     };
 
+    const handlePasswordSubmit = () => {
+        const handleResponseSuccess = () => {
+            setPasswordAlertJsx(<Alert severity="success">Password changed!</Alert>);
+            setIsPasswordLoading(false);
+
+            setTimeout(() => {
+                setPasswordAlertJsx(<></>);
+            }, 3000);
+        }
+
+        const handleResponseError = () => {
+            setPasswordAlertJsx(<Alert severity="error">Invalid password!</Alert>);
+            setIsPasswordLoading(false);
+
+            setTimeout(() => {
+                setPasswordAlertJsx(<></>);
+            }, 3000);
+        };
+
+        setIsPasswordLoading(true);
+
+        axios.post(
+            'http://localhost:8100/api/user/change-password',
+            { old_password: oldPassword, new_password: newPassword, id: id },
+            { headers: { 'Authorization': `Bearer ${token}` }}
+        ).then(response => handleResponseSuccess()).catch(() => handleResponseError());
+    };
+
     return (
         <Container maxWidth="md" sx={{
             display: 'flex',
@@ -145,6 +179,14 @@ const Dashboard = () => {
                             inputAlertJsx={emailAlertJsx}
                             setNewInput={setNewEmail}
                             handleInputSubmit={handleEmailSubmit}
+                        />
+
+                        <PasswordInput
+                            isPasswordLoading={isPasswordLoading}
+                            passwordAlertJsx={passwordAlertJsx}
+                            setOldPassword={setOldPassword}
+                            setNewPassword={setNewPassword}
+                            handlePasswordSubmit={handlePasswordSubmit}
                         />
                     </CardContent>
                 </Card>
