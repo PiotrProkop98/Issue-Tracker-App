@@ -11,13 +11,17 @@ const Dashboard = () => {
     const navigate = useNavigate();
 
     const dispatch = useAppDispatch();
-    const { username, token, id } = useSelector((state: RootState) => state.userSlice);
+    const { username, token, id, email } = useSelector((state: RootState) => state.userSlice);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [isUsernameLoading, setIsUsernameLoading] = useState<boolean>(false);
     const [usernameAlertJsx, setUsernameAlertJsx] = useState<any>(<></>);
     const [newUsername, setNewUsername] = useState<string>('');
+
+    const [isEmailLoading, setIsEmailLoading] = useState<boolean>(false);
+    const [emailAlertJsx, setEmailAlertJsx] = useState<any>(<></>);
+    const [newEmail, setNewEmail] = useState<string>('');
 
     useEffect(() => {
         if (localStorage.getItem('username') === null) {
@@ -28,7 +32,7 @@ const Dashboard = () => {
 
         axios.get(`http://localhost:8100/api/user/get-personal-data/${id}`, { headers: { 'Authorization': `Bearer ${token}` }})
             .then(response => {
-                dispatch(setEmail(response.data.email));
+                dispatch(setEmail(response.data));
                 setIsLoading(false);
             })
             .catch(err => console.error(err));
@@ -60,6 +64,38 @@ const Dashboard = () => {
         setIsUsernameLoading(true);
 
         axios.post('http://localhost:8100/api/user/change-name', { name: newUsername, id: id }, { headers: { 'Authorization': `Bearer ${token}` }})
+            .then(response => {
+                handleResponseSuccess();
+            })
+            .catch(() => handleResponseError());
+    };
+
+    const handleEmailSubmit = () => {
+        const handleResponseSuccess = () => {
+            dispatch(setEmail({email: newEmail}));
+
+            setEmailAlertJsx(<Alert severity="success">Email changed!</Alert>);
+
+            setIsEmailLoading(false);
+
+            setTimeout(() => {
+                setEmailAlertJsx(<></>);
+            }, 3000);
+        };
+
+        const handleResponseError = () => {
+            setEmailAlertJsx(<Alert severity="error">Invalid email!</Alert>);
+            
+            setIsEmailLoading(false);
+
+            setTimeout(() => {
+                setEmailAlertJsx(<></>);
+            }, 3000);
+        };
+
+        setIsEmailLoading(true);
+
+        axios.post('http://localhost:8100/api/user/change-email', { email: newEmail, id: id }, { headers: { 'Authorization': `Bearer ${token}` }})
             .then(response => {
                 handleResponseSuccess();
             })
@@ -100,6 +136,15 @@ const Dashboard = () => {
                             inputAlertJsx={usernameAlertJsx}
                             setNewInput={setNewUsername}
                             handleInputSubmit={handleUsernameSubmit}
+                        />
+
+                        <Input
+                            inputText={email}
+                            label="New email"
+                            isInputLoading={isEmailLoading}
+                            inputAlertJsx={emailAlertJsx}
+                            setNewInput={setNewEmail}
+                            handleInputSubmit={handleEmailSubmit}
                         />
                     </CardContent>
                 </Card>
