@@ -456,4 +456,80 @@ class ProjectTest extends TestCase
             ->assertStatus(400)
             ->assertJsonFragment($expected_json_data);
     }
+
+    public function test_project_edit_get_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $expected_json_data = [
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => 0
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('GET', '/api/project/edit-get/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_project_edit_get_user_not_logged_in()
+    {
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('GET', '/api/project/edit-get/' . $project->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_project_edit_get_project_not_found()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => '404 Not Found...'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('GET', '/api/project/edit-get/1');
+
+        $response
+            ->assertStatus(404)
+            ->assertJsonFragment($expected_json_data);
+    }
 }

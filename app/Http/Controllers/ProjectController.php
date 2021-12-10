@@ -180,4 +180,26 @@ class ProjectController extends Controller
             'success' => true
         ], 201);
     }
+
+    public function getEditData($id)
+    {
+        $project = Project::where('id', '=', $id)->first();
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Not Found...'
+            ], 404);
+        }
+
+        $response_data = [
+            'name' => $project->name,
+            'description' => $project->description,
+            'developer_company_name' => $project->developer_company_name,
+            'client_company_name' => $project->client_company_name,
+            'is_private' => $project->is_private
+        ];
+
+        return response()->json($response_data, 200);
+    }
 }

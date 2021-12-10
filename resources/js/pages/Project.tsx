@@ -1,8 +1,9 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
     Box,
+    Button,
     Card,
     CardContent,
     CircularProgress,
@@ -38,6 +39,8 @@ interface IssueData {
 }
 
 const Project = () => {
+    const navigate = useNavigate();
+
     const { id } = useParams<string>();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -106,6 +109,16 @@ const Project = () => {
                                     <Typography variant="h6">Client: { project?.client_company_name }</Typography>
                                 </Grid>
                             </Grid>
+                            {localStorage.getItem('username') !== null && 
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    sx={{ marginTop: '25px' }}
+                                    onClick={() => navigate(`/project/edit/${id}`)}
+                                >
+                                    Edit
+                                </Button>
+                            } 
                         </CardContent>
                     </Card>
                 </Grid>

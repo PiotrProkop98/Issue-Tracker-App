@@ -15,6 +15,7 @@ import Footer from './Footer';
 import Issue from '../pages/Issue';
 import Dashboard from '../pages/Dashboard';
 import AddNewProject from '../pages/AddNewProject';
+import ProjectEdit from '../pages/ProjectEdit';
 
 const App = () => {
     return (
@@ -30,6 +31,7 @@ const App = () => {
                         <Route path="/register" element={<Register />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/add-new-project" element={<AddNewProject />} />
+                        <Route path="/edit-project/:id" element={<ProjectEdit />} />
                         <Route path="/your-projects" element={<YourProjects />} />
                         <Route path="/project/:id" element={<Project />} />
                         <Route path="/issue/:id" element={<Issue />} />
