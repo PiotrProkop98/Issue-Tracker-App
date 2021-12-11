@@ -28,7 +28,11 @@ const projectEditSlice = createSlice({
         client_company_name: '',
         is_private: false
     },
-    reducers: {},
+    reducers: {
+        setIsLoading: (state, action) => {
+            state.isLoading = action.payload;
+        }
+    },
     extraReducers: builder => {
         builder.addCase(fetchProjectEditData.fulfilled, (state, action) => {
             state.isLoading = false;
@@ -44,5 +48,7 @@ const projectEditSlice = createSlice({
         });
     }
 });
+
+export const { setIsLoading } = projectEditSlice.actions;
 
 export default projectEditSlice.reducer;

@@ -11,6 +11,7 @@ use Hash;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Models\ProjectUser;
 
 class ProjectTest extends TestCase
 {
@@ -530,6 +531,256 @@ class ProjectTest extends TestCase
 
         $response
             ->assertStatus(404)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_check_if_user_authorized_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'allowed' => 1
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('GET', '/api/project/' . $user->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_check_if_user_authorized_user_not_logged_in()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('GET', '/api/project/' . $user->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_check_if_user_authorized_wrong_user_id()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $wrong_id = $user->id + 1;
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('GET', '/api/project/' . $wrong_id . '/' . $project->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_check_if_user_authorized_user_is_not_project_leader()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => false
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('GET', '/api/project/' . $user->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_view_private_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'success' => true,
+            'id' => $project->id,
+            'name' => $project->name,
+            'description' => $project->description,
+            'developer_company_name' => $project->developer_company_name,
+            'client_company_name' => $project->client_company_name,
+            'is_private' => 1
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('GET', '/api/projects/view-private/' . $user->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_view_private_user_not_logged_in()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('GET', '/api/projects/view-private/' . $user->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_view_private_user_is_not_a_project_leader()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Unauthenticated.'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('GET', '/api/projects/view-private/' . $user->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(401)
             ->assertJsonFragment($expected_json_data);
     }
 }
