@@ -10,9 +10,9 @@ import Project from '../pages/Project';
 import YourProjects from '../pages/YourProjects';
 import Login from '../pages/Login';
 import Register from '../pages/Register'
+import Issue from '../pages/Issue';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import Issue from '../pages/Issue';
 import Dashboard from '../pages/Dashboard';
 import AddNewProject from '../pages/AddNewProject';
 import ProjectEdit from '../pages/ProjectEdit';
