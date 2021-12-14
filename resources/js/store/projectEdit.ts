@@ -31,6 +31,21 @@ const projectEditSlice = createSlice({
     reducers: {
         setIsLoading: (state, action) => {
             state.isLoading = action.payload;
+        },
+        setName: (state, action) => {
+            state.name = action.payload;
+        },
+        setDescription: (state, action) => {
+            state.description = action.payload;
+        },
+        setDeveloperCompanyName: (state, action) => {
+            state.developer_company_name = action.payload;
+        },
+        setClientCompanyName: (state, action) => {
+            state.client_company_name = action.payload;
+        },
+        setIsPrivate: (state, action) => {
+            state.is_private = action.payload;
         }
     },
     extraReducers: builder => {
@@ -49,6 +64,13 @@ const projectEditSlice = createSlice({
     }
 });
 
-export const { setIsLoading } = projectEditSlice.actions;
+export const {
+    setIsLoading,
+    setName,
+    setDescription,
+    setDeveloperCompanyName,
+    setClientCompanyName,
+    setIsPrivate
+} = projectEditSlice.actions;
 
 export default projectEditSlice.reducer;

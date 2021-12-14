@@ -188,7 +188,7 @@ const Login = () => {
                                 sx={{ mt: 3, mb: 2 }}
                                 disabled={disabled}
                             >
-                            Sign Up
+                            Sign In
                         </Button>
                     </Box>
                 </>)}

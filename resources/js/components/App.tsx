@@ -33,7 +33,7 @@ const App = () => {
                         <Route path="/add-new-project" element={<AddNewProject />} />
                         <Route path="/project/edit/:project_id" element={<ProjectEdit />} />
                         <Route path="/your-projects" element={<YourProjects />} />
-                        <Route path="/project/:id" element={<Project />} />
+                        <Route path="/project/:project_id" element={<Project />} />
                         <Route path="/issue/:id" element={<Issue />} />
                     </Routes>
                 </Box>

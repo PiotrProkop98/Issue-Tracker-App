@@ -1,5 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 import axios from 'axios';
 import {
     Box,
@@ -41,9 +43,14 @@ interface IssueData {
 const Project = () => {
     const navigate = useNavigate();
 
-    const { id } = useParams<string>();
+    const { project_id } = useParams<string>();
+
+    const { id, token} = useSelector((state: RootState) => state.userSlice);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const [isEditButtonVisible, setIsEditButtonVisible] = useState<boolean>(false);
+
     const [project, setProject] = useState<ProjectData>();
     const [isIssuesLoading, setIsIssuesLoading] = useState<boolean>(false);
     const [issues, setIssues] = useState<IssueData[]>();
@@ -53,17 +60,38 @@ const Project = () => {
         setIsLoading(true);
         setIsIssuesLoading(true);
 
-        axios.get(`/api/projects/${id}`)
+        axios.get(`/api/projects/${project_id}`)
             .then(response => {
                 setIsLoading(false);
                 setProject(response.data);
 
-                axios.get(`/api/issues/${id}`)
-                    .then(response => {
-                        setIssues(response.data);
-                        setIsIssuesLoading(false);
-                    })
-                    .catch(err => console.error(err));
+                const fetchIssues = () => {
+                    axios.get(`/api/issues/${project_id}`)
+                        .then(response => {
+                            setIssues(response.data);
+                            setIsIssuesLoading(false);
+                        })
+                        .catch(err => console.error(err));
+                };
+
+                if (id !== -1) {
+                    axios.get(`/api/projects/view-private/${id}/${project_id}`, { headers: { 'Authorization': `Bearer ${token}` }})
+                        .then(response => {
+                            if (response.data.success != true) {
+                                setIsEditButtonVisible(false);
+                            } else {
+                                setIsEditButtonVisible(true);
+                            }
+
+                            fetchIssues();
+                        })
+                        .catch(() => {
+                            setIsEditButtonVisible(false);
+                            fetchIssues();
+                        });
+                } else {
+                    fetchIssues();
+                }
             })
             .catch(err => console.error(err));
     }, []);
@@ -99,26 +127,28 @@ const Project = () => {
                 <Grid item xs={12}>
                     <Card>
                         <CardContent>
-                            <Typography variant="h5" gutterBottom>Project: { project?.name }</Typography>
-                            <Typography variant="body1" gutterBottom>{ project?.description }</Typography>
-                            <Grid container spacing={1} direction="row" justifyContent="center">
-                                <Grid item xs={6}>
-                                    <Typography variant="h6">Developer: { project?.developer_company_name }</Typography>
+                            <>
+                                <Typography variant="h5" gutterBottom>Project: { project?.name }</Typography>
+                                <Typography variant="body1" gutterBottom>{ project?.description }</Typography>
+                                <Grid container spacing={1} direction="row" justifyContent="center">
+                                    <Grid item xs={6}>
+                                        <Typography variant="h6">Developer: { project?.developer_company_name }</Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Typography variant="h6">Client: { project?.client_company_name }</Typography>
+                                    </Grid>
                                 </Grid>
-                                <Grid item xs={6}>
-                                    <Typography variant="h6">Client: { project?.client_company_name }</Typography>
-                                </Grid>
-                            </Grid>
-                            {localStorage.getItem('username') !== null && 
-                                <Button
-                                    variant="contained"
-                                    size="small"
-                                    sx={{ marginTop: '25px' }}
-                                    onClick={() => navigate(`/project/edit/${id}`)}
-                                >
-                                    Edit
-                                </Button>
-                            } 
+                                {localStorage.getItem('username') !== null && isEditButtonVisible && 
+                                    <Button
+                                        variant="contained"
+                                        size="small"
+                                        sx={{ marginTop: '25px' }}
+                                        onClick={() => navigate(`/project/edit/${project_id}`)}
+                                    >
+                                        Edit
+                                    </Button>
+                                }
+                            </>
                         </CardContent>
                     </Card>
                 </Grid>
