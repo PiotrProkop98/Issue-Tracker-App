@@ -783,4 +783,268 @@ class ProjectTest extends TestCase
             ->assertStatus(401)
             ->assertJsonFragment($expected_json_data);
     }
+
+    public function test_edit_project_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $json_object = [
+            'name' => 'New name.',
+            'description' => 'New description.',
+            'developer_company_name' => 'NewDeveloper.com',
+            'client_company_name' => 'NewClient.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'success' => true,
+            'name' => 'New name.',
+            'description' => 'New description.',
+            'developer_company_name' => 'NewDeveloper.com',
+            'client_company_name' => 'NewClient.com',
+            'is_private' => false
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/projects/edit/' . $user->id . '/' . $project->id, $json_object);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_edit_project_user_not_logged_in()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $json_object = [
+            'name' => 'New name.',
+            'description' => 'New description.',
+            'developer_company_name' => 'NewDeveloper.com',
+            'client_company_name' => 'NewClient.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('POST', '/api/projects/edit/' . $user->id . '/' . $project->id, $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_edit_project_wrong_user_id()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user2 = User::create([
+            'email' => 'piotr2@gmail.com',
+            'name' => 'Piotr Prokop 2',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user1->id,
+            'project_id' => $project->id
+        ]);
+
+        $json_object = [
+            'name' => 'New name.',
+            'description' => 'New description.',
+            'developer_company_name' => 'NewDeveloper.com',
+            'client_company_name' => 'NewClient.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        Sanctum::actingAs($user2);
+
+        $response = $this->json('POST', '/api/projects/edit/' . $user1->id . '/' . $project->id, $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_edit_project_name_already_taken()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project1 = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $project2 = Project::create([
+            'name' => 'New name.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project1->id
+        ]);
+
+        $json_object = [
+            'name' => 'New name.',
+            'description' => 'New description.',
+            'developer_company_name' => 'NewDeveloper.com',
+            'client_company_name' => 'NewClient.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => 'Project name already taken!'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/projects/edit/' . $user->id . '/' . $project1->id, $json_object);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_edit_project_user_is_not_a_project_leader()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $json_object = [
+            'name' => 'New name.',
+            'description' => 'New description.',
+            'developer_company_name' => 'NewDeveloper.com',
+            'client_company_name' => 'NewClient.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => '404 Not Found'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/projects/edit/' . $user->id . '/' . $project->id, $json_object);
+
+        $response
+            ->assertStatus(404)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_edit_project_does_not_exists()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $json_object = [
+            'name' => 'New name.',
+            'description' => 'New description.',
+            'developer_company_name' => 'NewDeveloper.com',
+            'client_company_name' => 'NewClient.com',
+            'is_private' => false
+        ];
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => '404 Not Found'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('POST', '/api/projects/edit/' . $user->id . '/1', $json_object);
+
+        $response
+            ->assertStatus(404)
+            ->assertJsonFragment($expected_json_data);
+    }
 }

@@ -265,4 +265,119 @@ class ProjectController extends Controller
             'allowed' => 1
         ], 200);
     }
+
+    public function edit(Request $request, $user_id, $project_id)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid project name!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'description' => 'required|string'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid project description!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'developer_company_name' => 'required|string'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid Developer company name!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'client_company_name' => 'required|string'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid Client company name!'
+            ], 400);
+        }
+
+        try {
+            $request->validate([
+                'is_private' => 'required|boolean'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid project data!'
+            ], 400);
+        }
+
+        $project_exists = Project::where('name', '=', $request->all()['name'])->first();
+
+        if ($project_exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Project name already taken!'
+            ], 400);
+        }
+
+        $user_logged_in = $request->user();
+
+        if ($user_logged_in->id != $user_id) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $projectUser = ProjectUser::where('user_id', '=', $user_id)->where('project_id', '=', $project_id)->first();
+
+        if (!$projectUser || $projectUser->role != 'Leader') {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Not Found'
+            ], 404);
+        }
+
+        $project = Project::where('id', '=', $project_id)->first();
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Not Found'
+            ], 404);
+        }
+
+        $project->name = $request->all()['name'];
+        $project->description = $request->all()['description'];
+        $project->developer_company_name = $request->all()['developer_company_name'];
+        $project->client_company_name = $request->all()['client_company_name'];
+        $project->is_private = $request->all()['is_private'];
+
+        $project->save();
+
+        return response()->json([
+            'success' => true,
+            'name' => $request->all()['name'],
+            'description' => $request->all()['description'],
+            'developer_company_name' => $request->all()['developer_company_name'],
+            'client_company_name' => $request->all()['client_company_name'],
+            'is_private' => $request->all()['is_private']
+        ], 200);
+    }
 }

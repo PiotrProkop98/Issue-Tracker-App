@@ -3,8 +3,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Box, Button, Checkbox, CircularProgress, Container, FormControlLabel, Grid, TextField, Typography } from '@mui/material';
 import { RootState, useAppDispatch } from '../store';
-import { fetchProjectEditData, setClientCompanyName, setDescription, setDeveloperCompanyName, setIsLoading, setIsPrivate, setName } from '../store/projectEdit';
 import axios from 'axios';
+import {
+    fetchProjectEditData,
+    setClientCompanyName,
+    setDescription,
+    setDeveloperCompanyName,
+    setIsLoading,
+    setIsPrivate,
+    setName
+} from '../store/projectEdit';
 
 const ProjectEdit = () => {
     const navigate = useNavigate();
@@ -63,6 +71,10 @@ const ProjectEdit = () => {
             setDisabled(false);
         }
     }, [name, description, developer_company_name, client_company_name]);
+
+    const handleSubmit = () => {
+        if (disabled) return;
+    }
 
     return (
         <>
@@ -134,7 +146,7 @@ const ProjectEdit = () => {
                                     label="Private project?"
                                     control={
                                         <Checkbox
-                                            checked={is_private}
+                                            checked={Boolean(is_private)}
                                             onChange={()  => dispatch(setIsPrivate(!is_private))}
                                         />
                                     }
@@ -147,6 +159,7 @@ const ProjectEdit = () => {
                             variant="contained"
                             disabled={disabled}
                             sx={{ mt: 3, mb: 2 }}
+                            onClick={handleSubmit}
                         >
                             Submit changes
                         </Button>

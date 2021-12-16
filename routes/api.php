@@ -37,6 +37,7 @@ Route::get('/projects/projects-user-belongs-to-only', [ProjectController::class,
 Route::get('/projects/{id}', [ProjectController::class, 'view']);
 Route::get('/projects/view-private/{user_id}/{project_id}', [ProjectController::class, 'viewPrivate'])->middleware('auth:sanctum');
 Route::post('/projects/create', [ProjectController::class, 'create'])->middleware('auth:sanctum');
+Route::post('/projects/edit/{user_id}/{project_id}', [ProjectController::class, 'edit'])->middleware('auth:sanctum');
 Route::post('/project/create/make-user-leader', [ProjectController::class, 'makeUserLeader'])->middleware('auth:sanctum');
 Route::get('/project/edit-get/{id}', [ProjectController::class, 'getEditData'])->middleware('auth:sanctum');
 Route::get('/project/{user_id}/{project_id}', [ProjectController::class, 'checkIfUserAuthorized'])->middleware('auth:sanctum');
