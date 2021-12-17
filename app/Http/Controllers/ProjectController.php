@@ -330,7 +330,7 @@ class ProjectController extends Controller
 
         $project_exists = Project::where('name', '=', $request->all()['name'])->first();
 
-        if ($project_exists) {
+        if ($project_exists && ($project_exists->id != $project_id)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Project name already taken!'

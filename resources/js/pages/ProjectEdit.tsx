@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Box, Button, Checkbox, CircularProgress, Container, FormControlLabel, Grid, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Checkbox, CircularProgress, Container, FormControlLabel, Grid, TextField, Typography } from '@mui/material';
 import { RootState, useAppDispatch } from '../store';
 import axios from 'axios';
 import {
@@ -34,6 +34,8 @@ const ProjectEdit = () => {
     const [isUserAllowed, setIsUserAllowed] = useState<boolean>(false);
 
     const [disabled, setDisabled] = useState<boolean>(false);
+
+    const [responseAlertJsx, setResponseAlertJsx] = useState<any>(<></>);
 
     useEffect(() => {
         if (localStorage.getItem('username') === null) {
@@ -74,6 +76,38 @@ const ProjectEdit = () => {
 
     const handleSubmit = () => {
         if (disabled) return;
+
+        const data = {
+            name: name,
+            description: description,
+            developer_company_name: developer_company_name,
+            client_company_name: client_company_name,
+            is_private: is_private
+        };
+
+        const handleError = () => {
+            dispatch(setIsLoading(false));
+
+            setResponseAlertJsx(
+                <Alert severity="error">Invalid data!</Alert>
+            );
+        };
+
+        dispatch(setIsLoading(true));
+
+        axios.post(
+            `http://localhost:8100/api/projects/edit/${id}/${project_id}`,
+            data,
+            { headers: { 'Authorization': `Bearer ${token}` }}
+        ).then(response => {
+            dispatch(setIsLoading(false));
+
+            setResponseAlertJsx(
+                <Alert severity="success">Successfully changed project data!</Alert>
+            );
+        }).catch(() => {
+            handleError();
+        });
     }
 
     return (
@@ -163,6 +197,7 @@ const ProjectEdit = () => {
                         >
                             Submit changes
                         </Button>
+                        {responseAlertJsx}
                     </>)}
                 </Box>
             </Container>
