@@ -16,6 +16,8 @@ import {
     Typography
 } from '@mui/material';
 
+import RefreshIcon from '@mui/icons-material/Refresh';
+
 import { fetchProjects, setLoaded, setCurrentPage, setProjects } from '../store/projects';
 import { RootState } from '../store';
 
@@ -40,12 +42,7 @@ const AllProjects = () => {
     const [nextButtonJsx, setNextButtonJsx] = useState<any>();
     const [pageButtonsJsx, setPageButtonsJsx] = useState<any>();
 
-    useEffect(() => {
-        if (loaded) {
-            setIsloading(false);
-            return;
-        }
-
+    const handleProjectsLoad = () => {
         setIsloading(true);
 
         dispatch(fetchProjects(Number(current_page)))
@@ -54,6 +51,19 @@ const AllProjects = () => {
                 setIsloading(false);
             })
             .catch(err => console.error(err));
+    };
+
+    const handleRefresh = () => {
+        handleProjectsLoad();
+    };
+
+    useEffect(() => {
+        if (loaded) {
+            setIsloading(false);
+            return;
+        }
+
+        handleProjectsLoad();
     }, [current_page]);
 
     const handlePrev = () => {
@@ -160,7 +170,9 @@ const AllProjects = () => {
 
     return (
         <Container maxWidth="sm">
-            <Typography variant="h4" gutterBottom>Public projects Page: {current_page}</Typography>
+            <Typography variant="h4" gutterBottom>
+                Public projects Page: {current_page} <Button onClick={handleRefresh}><RefreshIcon color="primary" /></Button>
+            </Typography>
             { projectsJsx }
             { !isLoading &&
                 <Grid container direction="column" justifyContent="center" alignItems="center">
