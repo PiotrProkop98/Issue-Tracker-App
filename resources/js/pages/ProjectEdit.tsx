@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Alert, Box, Button, Checkbox, CircularProgress, Container, FormControlLabel, Grid, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Checkbox, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Grid, TextField, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { red } from '@mui/material/colors';
 import { RootState, useAppDispatch } from '../store';
 import axios from 'axios';
 import {
@@ -36,6 +38,10 @@ const ProjectEdit = () => {
     const [disabled, setDisabled] = useState<boolean>(false);
 
     const [responseAlertJsx, setResponseAlertJsx] = useState<any>(<></>);
+
+    const [alertOpen, setAlertOpen] = useState<boolean>(false);
+
+    const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (localStorage.getItem('username') === null) {
@@ -110,6 +116,21 @@ const ProjectEdit = () => {
         });
     }
 
+    const handleAlertClose = () => {
+        setAlertOpen(false);
+    };
+
+    const handleDelete = () => {
+        setIsDeleteLoading(true);
+
+        axios.delete(`/api/project/${id}/${project_id}`, { headers: { 'Authorization': `Bearer ${token}` }})
+            .then(() => {
+                setIsDeleteLoading(false);
+                navigate('/');
+            })
+            .catch(err => console.log(err));
+    };
+
     return (
         <>
             {!(isUserAllowed) && !(isLoading) && (
@@ -126,10 +147,31 @@ const ProjectEdit = () => {
                         alignItems: 'center'
                     }}
                 >
+                <Dialog
+                    open={alertOpen}
+                    onClose={handleAlertClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    {!(isDeleteLoading) && (<>
+                        <DialogTitle id="alert-dialog-title">
+                            Are you SURE you want to deleta this project?
+                        </DialogTitle>
+                        <DialogActions>
+                            <Button autoFocus onClick={handleAlertClose}>NO</Button>
+                            <Button color="error" onClick={handleDelete}>YES</Button>
+                        </DialogActions>
+                    </>)}
+                    {isDeleteLoading && (<>
+                        <DialogContent>
+                            <CircularProgress />
+                        </DialogContent>
+                    </>)}
+                </Dialog>
                     {isLoading && <CircularProgress />}
                     {!(isLoading) && isUserAllowed && (<>
                         <Typography component="h1" variant="h5">
-                            Edit project data
+                            Edit project data <Button onClick={() => setAlertOpen(true)}><DeleteIcon sx={{ color: red[500] }} /></Button>
                         </Typography>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>

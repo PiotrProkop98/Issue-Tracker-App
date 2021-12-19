@@ -380,4 +380,38 @@ class ProjectController extends Controller
             'is_private' => $request->all()['is_private']
         ], 200);
     }
+
+    public function delete(Request $request, $user_id, $project_id)
+    {
+        $user_logged_in = $request->user();
+
+        if ($user_logged_in->id != $user_id) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $projectUser = ProjectUser::where('user_id', '=', $user_id)->where('project_id', '=', $project_id)->first();
+
+        if (!$projectUser || $projectUser->role != 'Leader') {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $project = Project::where('id', '=', $project_id)->first();
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Not Found'
+            ], 404);
+        }
+
+        $project->forceDelete();
+
+        return response()->json([
+            'success' => true
+        ], 200);
+    }
 }

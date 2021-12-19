@@ -1047,4 +1047,173 @@ class ProjectTest extends TestCase
             ->assertStatus(404)
             ->assertJsonFragment($expected_json_data);
     }
+
+    public function test_project_delete_success()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'success' => true
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('DELETE', '/api/project/' . $user->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_project_delete_project_does_not_exists()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->json('DELETE', '/api/project/' . $user->id . '/1');
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_project_delete_user_not_logged_in()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('DELETE', '/api/project/' . $user->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_project_delete_user_is_not_project_leader()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user2 = User::create([
+            'email' => 'piotr2@gmail.com',
+            'name' => 'Piotr Prokop 2',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser1 = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user1->id,
+            'project_id' => $project->id
+        ]);
+
+        $projectUser2 = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user2->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $response = $this->json('DELETE', '/api/project/' . $user2->id . '/' . $project->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_project_delete_wrong_user_id()
+    {
+        $user = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUser = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'message' => 'Unauthenticated.'
+        ];
+
+        $wrong_id = $user->id + 1;
+
+        $response = $this->json('DELETE', '/api/project/' . $wrong_id . '/' . $project->id);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
 }

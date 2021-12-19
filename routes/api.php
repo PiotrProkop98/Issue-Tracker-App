@@ -41,6 +41,7 @@ Route::post('/projects/edit/{user_id}/{project_id}', [ProjectController::class, 
 Route::post('/project/create/make-user-leader', [ProjectController::class, 'makeUserLeader'])->middleware('auth:sanctum');
 Route::get('/project/edit-get/{id}', [ProjectController::class, 'getEditData'])->middleware('auth:sanctum');
 Route::get('/project/{user_id}/{project_id}', [ProjectController::class, 'checkIfUserAuthorized'])->middleware('auth:sanctum');
+Route::delete('/project/{user_id}/{project_id}', [ProjectController::class, 'delete'])->middleware('auth:sanctum');
 
 Route::get('/issues/{project_id}', [IssueController::class, 'all']);
 Route::get('/issue/{issue_id}', [IssueController::class, 'show']);
