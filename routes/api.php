@@ -46,3 +46,4 @@ Route::delete('/project/{user_id}/{project_id}', [ProjectController::class, 'del
 Route::get('/issues/{project_id}', [IssueController::class, 'all']);
 Route::get('/issue/{issue_id}', [IssueController::class, 'show']);
 Route::get('/issue/show-user/{issue_id}/{user_id}', [IssueController::class, 'showUser']);
+Route::post('/issue/create', [IssueController::class, 'create'])->middleware('auth:sanctum');

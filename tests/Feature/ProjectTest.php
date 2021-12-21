@@ -1175,6 +1175,8 @@ class ProjectTest extends TestCase
             'message' => 'Unauthenticated.'
         ];
 
+        Sanctum::actingAs($user2);
+
         $response = $this->json('DELETE', '/api/project/' . $user2->id . '/' . $project->id);
 
         $response
@@ -1209,6 +1211,8 @@ class ProjectTest extends TestCase
         ];
 
         $wrong_id = $user->id + 1;
+
+        Sanctum::actingAs($user);
 
         $response = $this->json('DELETE', '/api/project/' . $wrong_id . '/' . $project->id);
 

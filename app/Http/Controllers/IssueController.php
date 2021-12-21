@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Project;
-use App\Models\Issue;
 use App\Models\User;
+use App\Models\ProjectUser;
+use App\Models\Issue;
 
 class IssueController extends Controller
 {
@@ -84,5 +85,54 @@ class IssueController extends Controller
                 'user' => $userData
             ], 200);
         }
+    }
+
+    public function create(Request $request)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string',
+                'description' => 'required|string',
+                'status' => 'required|string',
+                'project_id' => 'required'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid issue data!'
+            ], 400);
+        }
+
+        $user = $request->user();
+
+        $projectUser = ProjectUser::where('user_id', '=', $user->id)->where('project_id', '=', $request->all()['project_id'])->first();
+
+        if (!$projectUser || $projectUser->role != 'Leader') {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $project = Project::where('id', '=', $request->all()['project_id'])->first();
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid issue data!'
+            ], 400);
+        }
+
+        Issue::create([
+            'title' => $request->all()['title'],
+            'description' => $request->all()['description'],
+            'status' => $request->all()['status'],
+            'project_id' => $request->all()['project_id'],
+            'user_id' => null
+        ]);
+
+        return response()->json([
+            'success' => true
+        ], 201);
     }
 }
