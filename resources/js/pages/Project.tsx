@@ -138,16 +138,30 @@ const Project = () => {
                                         <Typography variant="h6">Client: { project?.client_company_name }</Typography>
                                     </Grid>
                                 </Grid>
-                                {localStorage.getItem('username') !== null && isEditButtonVisible && 
-                                    <Button
-                                        variant="contained"
-                                        size="small"
-                                        sx={{ marginTop: '25px' }}
-                                        onClick={() => navigate(`/project/edit/${project_id}`)}
-                                    >
-                                        Edit
-                                    </Button>
-                                }
+                                <Grid container spacing={1} direction="row">
+                                    {localStorage.getItem('username') !== null && isEditButtonVisible && 
+                                        <Grid item xs={12} sm={6}>
+                                            <Button
+                                                variant="contained"
+                                                size="small"
+                                                sx={{ marginTop: '25px' }}
+                                                onClick={() => navigate(`/project/edit/${project_id}`)}
+                                            >
+                                                Edit
+                                            </Button>
+                                        </Grid>
+                                    }
+                                    <Grid item xs={12} sm={6}>
+                                        <Button
+                                            variant="contained"
+                                            size="small"
+                                            sx={{ marginTop: '25px' }}
+                                            onClick={() => navigate('/issue/create/')}
+                                        >
+                                            Add issue
+                                        </Button>
+                                    </Grid>
+                                </Grid>
                             </>
                         </CardContent>
                     </Card>

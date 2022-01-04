@@ -16,6 +16,7 @@ import Footer from './Footer';
 import Dashboard from '../pages/Dashboard';
 import AddNewProject from '../pages/AddNewProject';
 import ProjectEdit from '../pages/ProjectEdit';
+import AddIssue from '../pages/AddIssue';
 
 const App = () => {
     return (
@@ -35,6 +36,7 @@ const App = () => {
                         <Route path="/your-projects" element={<YourProjects />} />
                         <Route path="/project/:project_id" element={<Project />} />
                         <Route path="/issue/:id" element={<Issue />} />
+                        <Route path="/issue/create" element={<AddIssue />} />
                     </Routes>
                 </Box>
 
