@@ -481,7 +481,8 @@ class IssueTest extends TestCase
         ];
 
         $expected_json_data = [
-            'message' => 'Unauthenticated.'
+            'success' => false,
+            'message' => 'Invalid issue data!'
         ];
 
         Sanctum::actingAs($user);
@@ -489,7 +490,7 @@ class IssueTest extends TestCase
         $response = $this->json('POST', '/api/issue/create', $json_object);
 
         $response
-            ->assertStatus(401)
+            ->assertStatus(400)
             ->assertJsonFragment($expected_json_data);
     }
 }

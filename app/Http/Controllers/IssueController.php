@@ -106,14 +106,6 @@ class IssueController extends Controller
 
         $user = $request->user();
 
-        $projectUser = ProjectUser::where('user_id', '=', $user->id)->where('project_id', '=', $request->all()['project_id'])->first();
-
-        if (!$projectUser || $projectUser->role != 'Leader') {
-            return response()->json([
-                'message' => 'Unauthenticated.'
-            ], 401);
-        }
-
         $project = Project::where('id', '=', $request->all()['project_id'])->first();
 
         if (!$project) {
@@ -123,7 +115,7 @@ class IssueController extends Controller
             ], 400);
         }
 
-        Issue::create([
+        $issue = Issue::create([
             'title' => $request->all()['title'],
             'description' => $request->all()['description'],
             'status' => $request->all()['status'],
@@ -132,7 +124,8 @@ class IssueController extends Controller
         ]);
 
         return response()->json([
-            'success' => true
+            'success' => true,
+            'id' => $issue->id
         ], 201);
     }
 }

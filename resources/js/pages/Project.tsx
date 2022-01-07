@@ -151,16 +151,18 @@ const Project = () => {
                                             </Button>
                                         </Grid>
                                     }
-                                    <Grid item xs={12} sm={6}>
-                                        <Button
-                                            variant="contained"
-                                            size="small"
-                                            sx={{ marginTop: '25px' }}
-                                            onClick={() => navigate('/issue/create/')}
-                                        >
-                                            Add issue
-                                        </Button>
-                                    </Grid>
+                                    {localStorage.getItem('username') !== null && (
+                                        <Grid item xs={12} sm={6}>
+                                            <Button
+                                                variant="contained"
+                                                size="small"
+                                                sx={{ marginTop: '25px' }}
+                                                onClick={() => navigate(`/issue/create/${project_id}`)}
+                                            >
+                                                Add issue
+                                            </Button>
+                                        </Grid>
+                                    )}
                                 </Grid>
                             </>
                         </CardContent>
