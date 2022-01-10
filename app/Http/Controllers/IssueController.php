@@ -128,4 +128,81 @@ class IssueController extends Controller
             'id' => $issue->id
         ], 201);
     }
+
+    public function assign(Request $request)
+    {
+        try {
+            $request->validate([
+                'user_id' => 'required',
+                'issue_id' => 'required'
+            ]);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid data!'
+            ], 400);
+        }
+
+        $user_leader = $request->user();
+
+        $user_developer = User::where('id', '=', $request->all()['user_id'])->first();
+
+        if (!$user_developer) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Project not found.'
+            ], 404);
+        }
+
+        $project_user_leader = ProjectUser::where('user_id', '=', $user_leader->id)->first();
+
+        if (!$project_user_leader) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Project not found.'
+            ], 401);
+        }
+
+        $project = Project::where('id', '=', $project_user_leader->project_id)->first();
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Project not found.'
+            ], 401);
+        }
+
+        if ($project_user_leader->role != 'Leader') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only project leader can assing issues.'
+            ], 401);
+        }
+
+        $project_user_developer = ProjectUser::where('user_id', '=', $user_developer->id)->first();
+
+        if (!$project_user_developer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This user is not part of a team.'
+            ], 401);
+        }
+
+        $issue = Issue::where('id', '=', $request->all()['issue_id'])->first();
+
+        if (!$issue || $issue->project_id != $project->id) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Issue not found.'
+            ], 404);
+        }
+
+        $issue->user_id = $user_developer->id;
+        $issue->save();
+
+        return response()->json([
+            'success' => true
+        ], 200);
+    }
 }
