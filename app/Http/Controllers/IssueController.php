@@ -199,6 +199,8 @@ class IssueController extends Controller
         }
 
         $issue->user_id = $user_developer->id;
+        $issue->status = 'Work in progress';
+
         $issue->save();
 
         return response()->json([
