@@ -9,6 +9,9 @@ use Hash;
 use Laravel\Sanctum\Sanctum;
 
 use App\Models\User;
+use App\Models\Project;
+use App\Models\ProjectUser;
+use App\Models\Issue;
 
 class UserTest extends TestCase
 {
@@ -794,6 +797,162 @@ class UserTest extends TestCase
 
         $response
             ->assertStatus(400)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_fetch_project_members_success()
+    {
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project_user1 = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user1->id,
+            'project_id' => $project->id
+        ]);
+
+        $user2 = User::create([
+            'email' => 'piotr2@gmail.com',
+            'name' => 'Piotr Prokop 2',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project_user2 = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user2->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'users' => [
+                [
+                    'name' => 'Piotr Prokop 1'
+                ],
+                [
+                    'name' => 'Piotr Prokop 2'
+                ]
+            ]
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/get-project-members/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_fetch_project_members_only_devs_and_leader_in_response()
+    {
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project_user1 = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user1->id,
+            'project_id' => $project->id
+        ]);
+
+        $user2 = User::create([
+            'email' => 'piotr2@gmail.com',
+            'name' => 'Piotr Prokop 2',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project_user2 = ProjectUser::create([
+            'role' => 'Client',
+            'user_id' => $user2->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'users' => [
+                [
+                    'name' => 'Piotr Prokop 1'
+                ]
+            ]
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/get-project-members/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_fetch_project_members_project_does_not_exists()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => '404 Project not found'
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/get-project-members/1');
+
+        $response
+            ->assertStatus(404)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_fetch_project_members_no_users_found()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $expected_json_data = [
+            'users' => []
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/get-project-members/' . $project->id);
+
+        $response
+            ->assertStatus(200)
             ->assertJson($expected_json_data);
     }
 }

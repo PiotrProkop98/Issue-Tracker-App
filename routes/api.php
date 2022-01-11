@@ -31,6 +31,7 @@ Route::get('/user/get-personal-data/{id}', [UserController::class, 'getPersonalD
 Route::post('/user/change-name', [UserController::class, 'changeName'])->middleware('auth:sanctum');
 Route::post('/user/change-email', [UserController::class, 'changeEmail'])->middleware('auth:sanctum');
 Route::post('/user/change-password', [UserController::class, 'changePassword'])->middleware('auth:sanctum');
+Route::get('/user/get-project-members/{project_id}', [UserController::class, 'getProjectMembers'])->middleware('auth:sanctum');
 
 Route::get('/projects', [ProjectController::class, 'index']);
 Route::get('/projects/projects-user-belongs-to-only', [ProjectController::class, 'projects_user_belongs_to_only'])->middleware('auth:sanctum');

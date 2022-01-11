@@ -9,6 +9,9 @@ use Hash;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
+use App\Models\Project;
+use App\Models\ProjectUser;
+use App\Models\Issue;
 
 class UserController extends Controller
 {
@@ -267,6 +270,36 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'new_password' => $request->all()['new_password']
+        ], 200);
+    }
+
+    public function getProjectMembers(Request $request, $project_id)
+    {
+        $project = Project::where('id', '=', $project_id)->first();
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 Project not found'
+            ], 404);
+        }
+
+        $project_users = ProjectUser::where('project_id', '=', $project_id)->get();
+
+        $users = [];
+
+        foreach ($project_users as $project_user) {
+            $user = User::where('id', '=', $project_user->user_id)->first();
+
+            $user_name_only = [
+                'name' => $user->name
+            ];
+
+            array_push($users, $user_name_only);
+        }
+
+        return response()->json([
+            'users' => $users
         ], 200);
     }
 }
