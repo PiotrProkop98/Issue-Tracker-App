@@ -10,7 +10,7 @@ const AddIssue = () => {
 
     const { project_id } = useParams<string>();
 
-    const { token} = useSelector((state: RootState) => state.userSlice);
+    const { token } = useSelector((state: RootState) => state.userSlice);
 
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');

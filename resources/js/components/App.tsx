@@ -35,7 +35,7 @@ const App = () => {
                         <Route path="/project/edit/:project_id" element={<ProjectEdit />} />
                         <Route path="/your-projects" element={<YourProjects />} />
                         <Route path="/project/:project_id" element={<Project />} />
-                        <Route path="/issue/:id" element={<Issue />} />
+                        <Route path="/issue/:issue_id" element={<Issue />} />
                         <Route path="/issue/create/:project_id" element={<AddIssue />} />
                     </Routes>
                 </Box>

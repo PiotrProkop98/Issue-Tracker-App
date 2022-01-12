@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\ProjectUser;
+use App\Models\Issue;
 
 class ProjectController extends Controller
 {
@@ -412,6 +413,32 @@ class ProjectController extends Controller
 
         return response()->json([
             'success' => true
+        ], 200);
+    }
+
+    public function getProjectByIssueId(Request $request, $issue_id)
+    {
+        $issue = Issue::where('id', '=', $issue_id)->first();
+
+        if (!$issue) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 not found.'
+            ], 404);
+        }
+
+        $project = Project::where('id', '=', $issue->project_id)->first();
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'project_id' => $project->id
         ], 200);
     }
 }
