@@ -955,4 +955,125 @@ class UserTest extends TestCase
             ->assertStatus(200)
             ->assertJson($expected_json_data);
     }
+
+    public function test_is_user_project_leader_success()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $project_user = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user1->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'is_leader' => true
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/is-project-leader/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_is_user_project_leader_user_is_not_a_leader()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $project_user = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user1->id,
+            'project_id' => $project->id
+        ]);
+
+        $expected_json_data = [
+            'is_leader' => false
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/is-project-leader/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_is_user_project_leader_user_is_not_a_member()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $expected_json_data = [
+            'is_leader' => false
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/is-project-leader/' . $project->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJson($expected_json_data);
+    }
+
+    public function test_is_user_project_leader_project_not_found()
+    {
+        $user1 = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop 1',
+            'password' => Hash::make('123456')
+        ]);
+
+        $expected_json_data = [
+            'success' => false,
+            'message' => '404 project not found'
+        ];
+
+        Sanctum::actingAs($user1);
+
+        $response = $this->json('GET', '/api/user/is-project-leader/1');
+
+        $response
+            ->assertStatus(404)
+            ->assertJson($expected_json_data);
+    }
 }

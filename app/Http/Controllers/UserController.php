@@ -302,4 +302,36 @@ class UserController extends Controller
             'users' => $users
         ], 200);
     }
+
+    public function isUserLeader(Request $request, $project_id)
+    {
+        $project = Project::where('id', '=', $project_id)->first();
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => '404 project not found'
+            ], 404);
+        }
+
+        $user = $request->user();
+
+        $project_user = ProjectUser::where('project_id', '=', $project->id)->where('user_id', '=', $user->id)->first();
+
+        if (!$project_user) {
+            return response()->json([
+                'is_leader' => false
+            ], 200);
+        }
+
+        if ($project_user->role != 'Leader') {
+            return response()->json([
+                'is_leader' => false
+            ], 200);
+        }
+
+        return response()->json([
+            'is_leader' => true
+        ], 200);
+    }
 }
