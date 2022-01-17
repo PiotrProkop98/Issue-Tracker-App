@@ -1,4 +1,18 @@
-import { Alert, Box, Card, CardContent, CircularProgress, Container, Typography } from '@mui/material';
+import {
+    Alert,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Container,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    SelectChangeEvent,
+    Typography
+} from '@mui/material';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -17,6 +31,7 @@ interface IssueData {
 };
 
 interface Member {
+    id: number,
     name: string
 };
 
@@ -32,7 +47,14 @@ const Issue = () => {
 
     const [members, setMembers] = useState<Member[]>([]);
 
+    const [isUserLeader, setIsUserLeader] = useState<boolean>(false);
+    const [selectedUserId, setSelectedUserId] = useState<string>('');
+
     const [error, setError] = useState<any>(<></>);
+
+    const handleChangeUser = (event: SelectChangeEvent) => {
+        setSelectedUserId(event.target.value as string);
+    }
 
     useEffect(() => {
         setIsLoading(true);
@@ -61,8 +83,21 @@ const Issue = () => {
                                             `/api/user/get-project-members/${project_id}`,
                                             { headers: { 'Authorization': `Bearer ${token}` }}
                                         ).then(response3 => {
-                                            setMembers(response3.data.users);
-                                            setIsLoading(false);
+                                            axios.get(
+                                                `/api/user/is-project-leader/${project_id}`,
+                                                { headers: { 'Authorization': `Bearer ${token}` }}
+                                            ).then(response4 => {
+                                                if (response4.data.success !== false && response4.data.is_leader) {
+                                                    setIsUserLeader(true);
+                                                }
+
+                                                setMembers(response3.data.users);
+                                                setIsLoading(false);
+                                            })
+                                            .catch(() => {
+                                                setMembers(response3.data.users);
+                                                setIsLoading(false);
+                                            });
                                         })
                                     }
                                 })
@@ -88,7 +123,25 @@ const Issue = () => {
                 <Card>
                     <CardContent>
                         <Typography variant="h5" gutterBottom>Issue: { issue?.title }</Typography>
-                        <Typography variant="h5" gutterBottom>Assign to: { (issue?.user_id === null) ? 'Unassigned' : user?.name }</Typography>
+
+                        <Typography variant="h5" gutterBottom>
+                            Assign to: { (issue?.user_id === null) ? 'Unassigned' : user?.name } { (isUserLeader && issue?.user_id === null) && 
+                            <FormControl sx={{ m: 1, minWidth: 80 }}>
+                                <InputLabel id="select-user-label">Select developer</InputLabel>
+                                <Select
+                                    labelId="select-user-label"
+                                    id="select-user"
+                                    value={selectedUserId}
+                                    label="Select developer"
+                                    onChange={handleChangeUser}
+                                >
+                                    {members.map((member: Member, i: number) => {
+                                        <MenuItem key={i} value={member.id}>{member.name}</MenuItem>
+                                    })}
+                                </Select>
+                            </FormControl> }
+                        </Typography>
+
                         <Typography variant="body1" gutterBottom>Problem description: { issue?.description }</Typography>
                         <Typography variant="h6" gutterBottom>Status: { issue?.status }</Typography>
                         <Typography variant="h6" gutterBottom>Added: { issue?.created_at }</Typography>

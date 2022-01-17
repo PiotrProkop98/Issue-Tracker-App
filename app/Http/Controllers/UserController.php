@@ -292,7 +292,8 @@ class UserController extends Controller
             $user = User::where('id', '=', $project_user->user_id)->first();
 
             $user_name_only = [
-                'name' => $user->name
+                'name' => $user->name,
+                'id' => $user->id
             ];
 
             array_push($users, $user_name_only);
