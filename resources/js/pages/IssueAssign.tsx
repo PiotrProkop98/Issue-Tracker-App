@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemText } from '@mui/material';
+import { Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemText, Paper } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -74,16 +74,18 @@ const IssueAssign = () => {
     }, []);
 
     return (
-        <>
+        <Container component="main" maxWidth="md">
             {isLoading && <CircularProgress />}
             {!(isLoading) && (<>
-                <List component="nav" aria-label="Project members">
-                    {members.map((member: Member, i: number) => (
-                        <ListItem button key={i}>
-                            <ListItemText primary={member.name} onClick={showUserAssignAlert} />
-                        </ListItem>
-                    ))}
-                </List>
+                <Paper>
+                    <List component="nav" aria-label="Project members">
+                        {members.map((member: Member, i: number) => (
+                            <ListItem button key={i}>
+                                <ListItemText primary={member.name} onClick={showUserAssignAlert} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Paper>
                 <Dialog
                     open={showDialog}
                     onClose={hideDialog}
@@ -98,7 +100,7 @@ const IssueAssign = () => {
                     </DialogActions>
                 </Dialog>
             </>)}
-        </>
+        </Container>
     );
 };
 
