@@ -31,11 +31,13 @@ const linksSlice = createSlice({
         setLoggedInLinks: state => {
             state.links = [
                 'Public projects',
+                'Your projects',
                 'Dashboard'
             ];
 
             state.urls = [
                 '/',
+                'your-projects',
                 '/Dashboard'
             ];
         }
