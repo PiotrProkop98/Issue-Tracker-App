@@ -808,4 +808,176 @@ class IssueTest extends TestCase
             ->assertStatus(400)
             ->assertJsonFragment($expected_json_data);
     }
+
+    public function test_new_issues_success()
+    {
+        $user_leader = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user_developer = User::create([
+            'email' => 'developer@gmail.com',
+            'name' => 'Developer',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUserLeader = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user_leader->id,
+            'project_id' => $project->id
+        ]);
+
+        $projectUserDeveloper = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user_developer->id,
+            'project_id' => $project->id
+        ]);
+
+        $issue = Issue::create([
+            'title' => 'Test issue',
+            'description' => 'Bla bla bla.',
+            'status' => 'Work in progress',
+            'project_id' => $project->id,
+            'user_id' => $user_developer->id
+        ]);
+
+        $expected_json_data = [
+            'issues' => [
+                [
+                    'title' => 'Test issue',
+                    'description' => 'Bla bla bla.',
+                    'status' => 'Work in progress',
+                    'project_id' => $project->id
+                ]
+            ]
+        ];
+
+        Sanctum::actingAs($user_developer);
+
+        $response = $this->json('GET', '/api/issue/new-issues');
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_new_issues_issue_is_not_assigned()
+    {
+        $user_leader = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user_developer = User::create([
+            'email' => 'developer@gmail.com',
+            'name' => 'Developer',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUserLeader = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user_leader->id,
+            'project_id' => $project->id
+        ]);
+
+        $projectUserDeveloper = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user_developer->id,
+            'project_id' => $project->id
+        ]);
+
+        $issue = Issue::create([
+            'title' => 'Test issue',
+            'description' => 'Bla bla bla.',
+            'status' => 'New',
+            'project_id' => $project->id,
+            'user_id' => null
+        ]);
+
+        $expected_json_data = [
+            'issues' => []
+        ];
+
+        Sanctum::actingAs($user_developer);
+
+        $response = $this->json('GET', '/api/issue/new-issues');
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_new_issues_issue_is_work_in_progress_started()
+    {
+        $user_leader = User::create([
+            'email' => 'piotr1@gmail.com',
+            'name' => 'Piotr Prokop',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user_developer = User::create([
+            'email' => 'developer@gmail.com',
+            'name' => 'Developer',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUserLeader = ProjectUser::create([
+            'role' => 'Leader',
+            'user_id' => $user_leader->id,
+            'project_id' => $project->id
+        ]);
+
+        $projectUserDeveloper = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user_developer->id,
+            'project_id' => $project->id
+        ]);
+
+        $issue = Issue::create([
+            'title' => 'Test issue',
+            'description' => 'Bla bla bla.',
+            'status' => 'Work in progress (started)',
+            'project_id' => $project->id,
+            'user_id' => $user_developer->id
+        ]);
+
+        $expected_json_data = [
+            'issues' => []
+        ];
+
+        Sanctum::actingAs($user_developer);
+
+        $response = $this->json('GET', '/api/issue/new-issues');
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
 }

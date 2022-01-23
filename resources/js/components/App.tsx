@@ -18,6 +18,7 @@ import AddNewProject from '../pages/AddNewProject';
 import ProjectEdit from '../pages/ProjectEdit';
 import AddIssue from '../pages/AddIssue';
 import IssueAssign from '../pages/IssueAssign';
+import NewIssues from '../pages/NewIssues';
 
 const App = () => {
     return (
@@ -39,6 +40,7 @@ const App = () => {
                         <Route path="/issue/:issue_id" element={<Issue />} />
                         <Route path="/issue/create/:project_id" element={<AddIssue />} />
                         <Route path="/issue/assign/:issue_id" element={<IssueAssign />} />
+                        <Route path="/new-issues" element={<NewIssues />} />
                     </Routes>
                 </Box>
 
