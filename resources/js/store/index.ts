@@ -6,12 +6,14 @@ import projectSlice from './projects';
 import userSlice from './user';
 import linksSlice from './links';
 import projectEditSlice from './projectEdit';
+import issuesSlice from './issues';
 
 const reducer = combineReducers({
     projectSlice,
     userSlice,
     linksSlice,
-    projectEditSlice
+    projectEditSlice,
+    issuesSlice
 });
 
 const store = configureStore({ reducer });

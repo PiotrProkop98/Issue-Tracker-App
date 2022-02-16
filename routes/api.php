@@ -35,7 +35,8 @@ Route::get('/user/get-project-members/{project_id}', [UserController::class, 'ge
 Route::get('/user/is-project-leader/{project_id}', [UserController::class, 'isUserLeader'])->middleware('auth:sanctum');
 
 Route::get('/projects', [ProjectController::class, 'index']);
-Route::get('/projects/projects-user-belongs-to-only', [ProjectController::class, 'projects_user_belongs_to_only'])->middleware('auth:sanctum');
+Route::get('/projects/projects-user-belongs-to-only', [ProjectController::class, 'projects_user_belongs_to_only'])
+    ->middleware('auth:sanctum');
 Route::get('/projects/{id}', [ProjectController::class, 'view']);
 Route::get('/projects/view-private/{user_id}/{project_id}', [ProjectController::class, 'viewPrivate'])->middleware('auth:sanctum');
 Route::post('/projects/create', [ProjectController::class, 'create'])->middleware('auth:sanctum');

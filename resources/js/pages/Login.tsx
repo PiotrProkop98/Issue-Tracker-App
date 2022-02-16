@@ -7,6 +7,8 @@ import { useAppDispatch } from '../store';
 import { login } from '../store/user';
 import { setLoggedInLinks } from '../store/links';
 
+import { fetchNewIssues } from '../store/issues';
+
 import { Box, Container, Typography, Grid, TextField, Button, Alert, LinearProgress, CircularProgress } from '@mui/material';
 
 const Login = () => {
@@ -69,6 +71,8 @@ const Login = () => {
                         dispatch(setLoggedInLinks());
 
                         setIsLoading(false);
+
+                        dispatch(fetchNewIssues(String(localStorage.getItem('token'))));
 
                         navigate('/');
                     } else {

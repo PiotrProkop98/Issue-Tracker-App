@@ -5,14 +5,31 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../store';
 import { logout, setUserFromLocalStorage } from '../store/user';
 import { setLoggedOutLinks, setLoggedInLinks } from '../store/links';
+import { fetchNewIssues } from '../store/issues';
 
-import { AppBar, Box, Button, IconButton, Toolbar, Typography, Menu, List, ListItem, ListItemIcon, ListItemText, Drawer } from '@mui/material';
+import {
+AppBar,
+Box,
+IconButton,
+Toolbar,
+Typography,
+Menu,
+List,
+ListItem,
+ListItemIcon,
+ListItemText,
+Drawer
+} from '@mui/material';
+
 import MenuIcon from '@mui/icons-material/Menu';
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 
 const Navbar = () => {
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
+
+    const dispatch = useAppDispatch();
+
+    const { newIssues } = useSelector((state: RootState) => state.issuesSlice);
 
     const { username } = useSelector((state: RootState) => state.userSlice);
     const { links, urls } = useSelector((state: RootState) => state.linksSlice);
@@ -38,6 +55,10 @@ const Navbar = () => {
         if (localStorage.getItem('username') !== null) {
             dispatch(setUserFromLocalStorage());
             dispatch(setLoggedInLinks());
+
+            if (newIssues.length === 0) {
+                dispatch(fetchNewIssues(String(localStorage.getItem('token'))));
+            }
         }
     }, [])
 
@@ -78,12 +99,22 @@ const Navbar = () => {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         <Link to="/" className="link">Bug tracker app</Link>
                     </Typography>
-                    { (localStorage.getItem('username') != null) && 
-                        <Typography variant="caption" component="div" sx={{ flexGrow: 1, textAlign: 'right' }}>
-                            <Link to="#" className="link" onClick={(e: any) => logoutUser(e)}>
-                                Hello { username }, logout here
-                            </Link>
-                        </Typography>
+                    { (localStorage.getItem('username') != null) && (<>
+                            <Typography variant="caption" component="div" sx={{ flexGrow: 1, textAlign: 'right' }}>
+                                <Box sx={{ display: { xs: 'block', sm: 'flex' } }}>
+                                    <Typography component="div" sx={{ flexGrow: 3, textAlign: 'right' }}>
+                                        <Link to="#" className="link" onClick={(e: any) => logoutUser(e)}>
+                                            Hello { username }, logout here
+                                        </Link>
+                                    </Typography>
+                                    <Typography component="div" sx={{ flexGrow: 1 }}>
+                                        <Link to="/new-issues" className="link">
+                                            You have { newIssues.length } new issues
+                                        </Link>
+                                    </Typography>
+                                </Box>
+                            </Typography>
+                        </>)
                     }
                 </Toolbar>
             </AppBar>
