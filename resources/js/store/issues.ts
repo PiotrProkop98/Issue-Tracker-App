@@ -14,12 +14,18 @@ export const fetchNewIssues = createAsyncThunk(
 const issuesSlice = createSlice({
     name: 'issues',
     initialState: {
-        newIssues: []
+        newIssues: [],
+        newIssuesLoading: false
     },
     reducers: {},
     extraReducers: builder => {
+        builder.addCase(fetchNewIssues.pending, (state, action) => {
+            state.newIssuesLoading = true;
+        });
+
         builder.addCase(fetchNewIssues.fulfilled, (state, action) => {
             state.newIssues = action.payload.issues;
+            state.newIssuesLoading = false;
         });
     }
 });

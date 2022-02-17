@@ -218,6 +218,7 @@ class IssueController extends Controller
 
         foreach ($issues as $issue) {
             array_push($result, [
+                'id' => $issue->id,
                 'title' => $issue->title,
                 'description' => $issue->description,
                 'status' => $issue->status,
