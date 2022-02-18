@@ -53,3 +53,4 @@ Route::get('/issue/{issue_id}', [IssueController::class, 'show']);
 Route::get('/issue/show-user/{issue_id}/{user_id}', [IssueController::class, 'showUser']);
 Route::post('/issue/create', [IssueController::class, 'create'])->middleware('auth:sanctum');
 Route::post('/issue/assign', [IssueController::class, 'assign'])->middleware('auth:sanctum');
+Route::get('/issue/start-working/{issue_id}', [IssueController::class, 'startWorking'])->middleware('auth:sanctum');

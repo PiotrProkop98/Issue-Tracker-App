@@ -230,4 +230,30 @@ class IssueController extends Controller
             'issues' => $result
         ], 200);
     }
+
+    public function startWorking(Request $request, $issue_id)
+    {
+        $user = $request->user();
+
+        $issue = Issue::where('id', '=', $issue_id)->first();
+
+        if (!$issue) {
+            return response()->json([
+                'success' => false
+            ], 404);
+        }
+
+        if ($issue->user_id != $user->id) {
+            return response()->json([
+                'success' => false
+            ], 401);
+        }
+
+        $issue->status = 'Work in progress (started)';
+        $issue->save();
+
+        return response()->json([
+            'success' => true
+        ], 200);
+    }
 }
