@@ -47,6 +47,7 @@ Route::get('/project/get-by-issue-id/{issue_id}', [ProjectController::class, 'ge
 Route::get('/project/{user_id}/{project_id}', [ProjectController::class, 'checkIfUserAuthorized'])->middleware('auth:sanctum');
 Route::delete('/project/{user_id}/{project_id}', [ProjectController::class, 'delete'])->middleware('auth:sanctum');
 
+Route::get('/issues/work-in-progress', [IssueController::class, 'workInProgress'])->middleware('auth:sanctum');
 Route::get('/issue/new-issues', [IssueController::class, 'newIssues'])->middleware('auth:sanctum');
 Route::get('/issues/{project_id}', [IssueController::class, 'all']);
 Route::get('/issue/{issue_id}', [IssueController::class, 'show']);

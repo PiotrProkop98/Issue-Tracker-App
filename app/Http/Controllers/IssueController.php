@@ -256,4 +256,28 @@ class IssueController extends Controller
             'success' => true
         ], 200);
     }
+
+    public function workInProgress(Request $request)
+    {
+        $user = $request->user();
+
+        $issues = Issue::where('user_id', '=', $user->id)->where('status', '=', 'Work in progress (started)')->get();
+
+        $result = [];
+
+        foreach ($issues as $issue) {
+            array_push($result, [
+                'id' => $issue->id,
+                'title' => $issue->title,
+                'description' => $issue->description,
+                'status' => $issue->status,
+                'project_id' => $issue->project_id,
+                'user_id' => $user->id
+            ]);
+        }
+
+        return response()->json([
+            'issues' => $result
+        ], 200);
+    }
 }
