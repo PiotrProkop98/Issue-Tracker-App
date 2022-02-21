@@ -33,14 +33,16 @@ const linksSlice = createSlice({
                 'Public projects',
                 'Your projects',
                 'Dashboard',
-                'New issues'
+                'New issues',
+                'Issues in progress'
             ];
 
             state.urls = [
                 '/',
                 'your-projects',
                 '/Dashboard',
-                '/new-issues'
+                '/new-issues',
+                '/issue-in-progress'
             ];
         }
     }
