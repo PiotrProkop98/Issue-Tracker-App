@@ -1301,4 +1301,157 @@ class IssueTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment($expected_json_data);
     }
+
+    public function test_mark_as_finished_success()
+    {
+        $user_developer = User::create([
+            'email' => 'developer@gmail.com',
+            'name' => 'Developer',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUserDeveloper = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user_developer->id,
+            'project_id' => $project->id
+        ]);
+
+        $issue = Issue::create([
+            'title' => 'Test issue',
+            'description' => 'Bla bla bla.',
+            'status' => 'Work in progress (started)',
+            'project_id' => $project->id,
+            'user_id' => $user_developer->id
+        ]);
+
+        $expected_json_data = [
+            'success' => true
+        ];
+
+        $json_object = [
+            'issue_id' => $issue->id
+        ];
+
+        Sanctum::actingAs($user_developer);
+
+        $response = $this->json('POST', '/api/issues/mark-as-finished', $json_object);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_mark_as_finished_issue_is_not_assigned()
+    {
+        $user_developer = User::create([
+            'email' => 'developer@gmail.com',
+            'name' => 'Developer',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUserDeveloper = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user_developer->id,
+            'project_id' => $project->id
+        ]);
+
+        $issue = Issue::create([
+            'title' => 'Test issue',
+            'description' => 'Bla bla bla.',
+            'status' => 'New',
+            'project_id' => $project->id,
+            'user_id' => null
+        ]);
+
+        $expected_json_data = [
+            'success' => false
+        ];
+
+        $json_object = [
+            'issue_id' => $issue->id
+        ];
+
+        Sanctum::actingAs($user_developer);
+
+        $response = $this->json('POST', '/api/issues/mark-as-finished', $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
+
+    public function test_mark_as_finished_issue_is_assigned_to_a_diffrent_user()
+    {
+        $user_developer = User::create([
+            'email' => 'developer@gmail.com',
+            'name' => 'Developer',
+            'password' => Hash::make('123456')
+        ]);
+
+        $user_developer2 = User::create([
+            'email' => 'developer2@gmail.com',
+            'name' => 'Developer 2',
+            'password' => Hash::make('123456')
+        ]);
+
+        $project = Project::create([
+            'name' => 'Test project.',
+            'description' => 'Bla bla bla.',
+            'developer_company_name' => 'Developer.com',
+            'client_company_name' => 'Client.com',
+            'is_private' => true
+        ]);
+
+        $projectUserDeveloper = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user_developer->id,
+            'project_id' => $project->id
+        ]);
+
+        $projectUserDeveloper2 = ProjectUser::create([
+            'role' => 'Developer',
+            'user_id' => $user_developer2->id,
+            'project_id' => $project->id
+        ]);
+
+        $issue = Issue::create([
+            'title' => 'Test issue',
+            'description' => 'Bla bla bla.',
+            'status' => 'Work in progress (started)',
+            'project_id' => $project->id,
+            'user_id' => $user_developer2->id
+        ]);
+
+        $expected_json_data = [
+            'success' => false
+        ];
+
+        $json_object = [
+            'issue_id' => $issue->id
+        ];
+
+        Sanctum::actingAs($user_developer);
+
+        $response = $this->json('POST', '/api/issues/mark-as-finished', $json_object);
+
+        $response
+            ->assertStatus(401)
+            ->assertJsonFragment($expected_json_data);
+    }
 }
