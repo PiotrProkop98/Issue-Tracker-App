@@ -11,7 +11,8 @@ import {
     Grid,
     CardContent,
     CardActions,
-    Button
+    Button,
+    Alert
 } from '@mui/material';
 
 interface Issue {
@@ -30,6 +31,7 @@ const IssuesInProgress = () => {
 
     const [issuesInProgress, setIssuesInProgress] = useState<Issue[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [alertJsx, setAlertJsx] = useState<any>(<></>);
 
     useEffect(() => {
         if (localStorage.getItem('username') === null) {
@@ -47,7 +49,24 @@ const IssuesInProgress = () => {
     }, []);
 
     const handleMarkAsFinished = (issueId: number) => {
-      //
+      setIsLoading(true);
+
+      axios.post('/api/issues/mark-as-finished', { issue_id: issueId }, { headers: { 'Authorization': `Bearer ${token}` }})
+        .then(() => {
+          axios.get('/api/issues/work-in-progress', { headers: { 'Authorization': `Bearer ${token}` }})
+            .then(response => {
+              setIsLoading(false);
+              setIssuesInProgress(response.data.issues);
+
+              setAlertJsx(<Alert severity="success" sx={{ marginTop: '10px' }}>Issue marked as finished!</Alert>);
+
+              setTimeout(() => {
+                setAlertJsx(<></>);
+              }, 2000);
+            })
+            .catch(err => console.error(err));
+        })
+        .catch(err => console.error(err));
     };
 
     return (
@@ -56,6 +75,7 @@ const IssuesInProgress = () => {
             { !(isLoading) && (<>
             { issuesInProgress.length === 0 && <Typography variant="h4">No issues in progress...</Typography> }
             <Grid container spacing={2}>
+              { alertJsx }
               { issuesInProgress.map((issue: Issue, i: number) => (
                 <Grid item xs={12} key={i}>
                   <Card>
