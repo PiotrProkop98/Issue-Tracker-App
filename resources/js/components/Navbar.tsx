@@ -81,10 +81,7 @@ const Navbar = () => {
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="fixed" sx={{
-                width: { lg: `calc(100% - ${drawerWidth}px)` },
-                ml: { lg: `${drawerWidth}px` }
-            }}>
+            <AppBar position="fixed">
                 <Toolbar>
                     <IconButton
                         size="large"
@@ -92,7 +89,7 @@ const Navbar = () => {
                         color="inherit"
                         aria-label="menu"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, cursor: 'pointer', display: { xs: 'block', lg: 'none' }}}
+                        sx={{ mr: 2, cursor: 'pointer'}}
                     >
                         <MenuIcon />
                     </IconButton>
@@ -131,21 +128,10 @@ const Navbar = () => {
                         keepMounted: true
                     }}
                     sx={{
-                        display: { xs: 'block', lg: 'none' },
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
                     }}
                 >
                     { drawer }
-                </Drawer>
-                <Drawer
-                    variant="permanent"
-                    sx={{
-                        display: { xs: 'none', lg: 'block' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
-                    }}
-                    open
-                    >
-                    {drawer}
                 </Drawer>
             </Box>
         </Box>
